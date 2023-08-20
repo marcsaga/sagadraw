@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import type { BaseElement, DrawedElement, MenuAction } from "./types";
 import { checkSelectedCollisions, hasCollided, setUpCanvas } from "./helpers";
 import { renderCanvasElements } from "./renders";
+import type { BaseElement, CanvasElement } from "./types";
+import type { MenuAction } from "~/components/actions-menu";
 
 interface UseCanvas {
   canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -17,7 +18,7 @@ export const useCanvas = (): UseCanvas => {
   const [action, setAction] = useState<MenuAction>();
   const [isDrawing, setIsDrawing] = useState(false);
   const [selectionElement, setSelectionElement] = useState<BaseElement>();
-  const [state, setState] = useState<DrawedElement[]>([]);
+  const [state, setState] = useState<CanvasElement[]>([]);
 
   useEffect(() => {
     const context = setUpCanvas(canvasRef.current);

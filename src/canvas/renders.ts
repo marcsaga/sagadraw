@@ -1,8 +1,8 @@
-import type { Element, DrawedElement } from "./types";
+import type { BaseElement, CanvasElement } from "./types";
 
 function renderRectanble(
   context: CanvasRenderingContext2D,
-  rect: Element,
+  rect: BaseElement,
   state: "drawed" | "selected" | "selection"
 ) {
   context.beginPath();
@@ -30,8 +30,8 @@ function renderRectanble(
 
 export function renderCanvasElements(
   context: CanvasRenderingContext2D,
-  state: DrawedElement[],
-  selectionElement?: Element
+  state: CanvasElement[],
+  selectionElement?: BaseElement
 ) {
   for (const [, rect] of state.entries()) {
     renderRectanble(context, rect, rect.selected ? "selected" : "drawed");

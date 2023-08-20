@@ -1,3 +1,4 @@
+import { ActionsMenu } from "~/components/actions-menu";
 import { useCanvas } from "./use-canvas";
 
 export const Canvas = () => {
@@ -12,12 +13,7 @@ export const Canvas = () => {
         onMouseMove={draw}
         onMouseUp={endDrawing}
       ></canvas>
-      <button
-        className="absolute bottom-24 right-24 rounded bg-black p-2"
-        onClick={() => selectAction("rectangle")}
-      >
-        <span className="text-white">Rectangle</span>
-      </button>
+      <ActionsMenu selectAction={selectAction} />
     </div>
   );
 };

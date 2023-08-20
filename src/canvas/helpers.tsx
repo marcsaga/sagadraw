@@ -1,4 +1,4 @@
-import type { BaseElement, DrawedElement, Element } from "./types";
+import type { BaseElement, CanvasElement } from "./types";
 
 export function setUpCanvas(
   element?: HTMLCanvasElement | null
@@ -33,8 +33,8 @@ export function hasCollided(wrapper: BaseElement, element: BaseElement) {
 }
 
 export const checkSelectedCollisions = (
-  state: DrawedElement[],
-  selectionElement?: Element
+  state: CanvasElement[],
+  selectionElement?: BaseElement
 ) => {
   if (!selectionElement) return;
   let updated = false;
