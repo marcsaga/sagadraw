@@ -3,6 +3,7 @@ import { checkSelectedCollisions, hasCollided, setUpCanvas } from "./helpers";
 import { renderCanvasElements } from "./renders";
 import type { BaseElement, CanvasElement } from "./types";
 import type { MenuAction } from "~/components/actions-menu";
+import { useDeleteListener } from "./hooks/use-delete-listener";
 
 interface UseCanvas {
   canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -19,6 +20,8 @@ export const useCanvas = (): UseCanvas => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [selectionElement, setSelectionElement] = useState<BaseElement>();
   const [state, setState] = useState<CanvasElement[]>([]);
+
+  useDeleteListener(setState);
 
   useEffect(() => {
     const context = setUpCanvas(canvasRef.current);
