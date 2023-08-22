@@ -1,8 +1,11 @@
 type ElementType = "rectangle" | "selection";
 
-export interface BaseElement {
+export interface Position {
   x: number;
   y: number;
+}
+
+export interface BaseElement extends Position {
   xSize: number;
   ySize: number;
 }
@@ -12,8 +15,18 @@ interface DrawedElement extends BaseElement {
   selected?: boolean;
 }
 
-interface RectangleElement extends DrawedElement {
+export interface RectangleElement extends DrawedElement {
   type: "rectangle";
 }
 
 export type CanvasElement = RectangleElement;
+
+export type ResizeRectanglePosition =
+  | "top-left"
+  | "top-right"
+  | "bottom-left"
+  | "bottom-right"
+  | "top"
+  | "bottom"
+  | "left"
+  | "right";
