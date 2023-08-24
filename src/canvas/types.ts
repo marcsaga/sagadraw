@@ -30,3 +30,5 @@ export type ResizeRectanglePosition =
   | "bottom"
   | "left"
   | "right";
+
+export type ResizeMode = "single" | "multiple";

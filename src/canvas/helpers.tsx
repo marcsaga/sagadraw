@@ -3,7 +3,7 @@ import type {
   BaseElement,
   CanvasElement,
   ResizeRectanglePosition,
-  Position,
+  ResizeMode,
 } from "./types";
 
 export function setUpCanvas(
@@ -46,20 +46,7 @@ export function hasCollided(wrapper: BaseElement, element: BaseElement) {
   );
 }
 
-type ResizeCursor = "nesw-resize" | "nwse-resize" | "ns-resize" | "ew-resize";
-
-const resizeCursorDict: Record<ResizeRectanglePosition, ResizeCursor> = {
-  "top-left": "nwse-resize",
-  "top-right": "nesw-resize",
-  "bottom-left": "nesw-resize",
-  "bottom-right": "nwse-resize",
-  bottom: "ns-resize",
-  top: "ns-resize",
-  left: "ew-resize",
-  right: "ew-resize",
-};
-
-export const RESIZE_RECTABLE_POSITIONS = new Set<ResizeRectanglePosition>([
+const SINGLE_ELEMENT_RESIZE_POSITIONS = new Set<ResizeRectanglePosition>([
   "top-left",
   "top-right",
   "bottom-left",
@@ -70,26 +57,26 @@ export const RESIZE_RECTABLE_POSITIONS = new Set<ResizeRectanglePosition>([
   "bottom",
 ]);
 
+const MULTIPLE_ELEMENTS_RESIZE_POSITIONS = new Set<ResizeRectanglePosition>([
+  "top-left",
+  "top-right",
+  "bottom-left",
+  "bottom-right",
+]);
+
+export const getResizePositions = (mode: ResizeMode) =>
+  mode === "single"
+    ? SINGLE_ELEMENT_RESIZE_POSITIONS
+    : MULTIPLE_ELEMENTS_RESIZE_POSITIONS;
+
 export function getResizeRectangles(
-  element: BaseElement
+  element: BaseElement,
+  mode: ResizeMode
 ): [ResizeRectanglePosition, BaseElement][] {
-  return Array.from(RESIZE_RECTABLE_POSITIONS).map((position) => [
+  return Array.from(getResizePositions(mode)).map((position) => [
     position,
     getResizeRectangle(element, position),
   ]);
-}
-
-export function getCursorFromResizeCollision(
-  elements: CanvasElement[],
-  mouse: Pick<BaseElement, "x" | "y">
-): ResizeCursor | undefined {
-  const selectedRect = getSelectedRect(elements);
-  if (!selectedRect) return;
-
-  const collision = getResizeRectangles(selectedRect).find(([, rectangle]) => {
-    return hasCollided(rectangle, { ...mouse, xSize: 0, ySize: 0 });
-  });
-  if (collision) return resizeCursorDict[collision[0]];
 }
 
 export function checkSelectedElements(
@@ -98,76 +85,21 @@ export function checkSelectedElements(
 ): { updated: boolean; newState: CanvasElement[] } | undefined {
   if (!selectionElement) return;
   let updated = false;
+  const selectedRect = getSelectedRect(state);
+  let resizeRectangleCollided = false;
+  if (selectedRect) {
+    resizeRectangleCollided = getResizeRectangles(
+      selectedRect.element,
+      selectedRect.mode
+    ).some(([, rectable]) => hasCollided(rectable, selectionElement));
+  }
   const newState = [...state];
   for (const [index, rect] of newState.entries()) {
     const rectCollided = hasCollided(selectionElement, rect);
-
-    const resizeRectangleCollided = getResizeRectangles(rect).some(
-      ([, rectable]) => hasCollided(rectable, selectionElement)
-    );
     updated =
       updated || (rectCollided !== rect.selected && !resizeRectangleCollided);
     newState[index]!.selected = rectCollided || resizeRectangleCollided;
   }
+
   return { updated, newState };
-}
-
-export function resizeElements(
-  { nativeEvent: { offsetX, offsetY } }: React.MouseEvent,
-  state: CanvasElement[],
-  resizePosition: Position & { position: ResizeRectanglePosition }
-): CanvasElement[] {
-  const newState = state.map((rect) => {
-    if (!rect.selected) return rect;
-    switch (resizePosition.position) {
-      case "top-left":
-        return {
-          ...rect,
-          x: rect.x + (offsetX - resizePosition.x),
-          y: rect.y + (offsetY - resizePosition.y),
-          xSize: rect.xSize + (resizePosition.x - offsetX),
-          ySize: rect.ySize + (resizePosition.y - offsetY),
-        };
-      case "top-right":
-        return {
-          ...rect,
-          y: rect.y + (offsetY - resizePosition.y),
-          xSize: rect.xSize + (offsetX - resizePosition.x),
-          ySize: rect.ySize + (resizePosition.y - offsetY),
-        };
-      case "bottom-left":
-        return {
-          ...rect,
-          x: rect.x + (offsetX - resizePosition.x),
-          xSize: rect.xSize + (resizePosition.x - offsetX),
-          ySize: rect.ySize + (offsetY - resizePosition.y),
-        };
-      case "bottom-right":
-        return {
-          ...rect,
-          xSize: rect.xSize + (offsetX - resizePosition.x),
-          ySize: rect.ySize + (offsetY - resizePosition.y),
-        };
-      case "top":
-        return {
-          ...rect,
-          y: rect.y + (offsetY - resizePosition.y),
-          ySize: rect.ySize + (resizePosition.y - offsetY),
-        };
-      case "bottom":
-        return { ...rect, ySize: rect.ySize + (offsetY - resizePosition.y) };
-      case "left":
-        return {
-          ...rect,
-          x: rect.x + (offsetX - resizePosition.x),
-          xSize: rect.xSize + (resizePosition.x - offsetX),
-        };
-      case "right":
-        return { ...rect, xSize: rect.xSize + (offsetX - resizePosition.x) };
-      default:
-        throw new Error("Invalid resize rectangle position");
-    }
-  });
-
-  return newState;
 }

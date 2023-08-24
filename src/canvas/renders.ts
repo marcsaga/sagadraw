@@ -1,8 +1,9 @@
-import { RESIZE_RECTABLE_POSITIONS } from "./helpers";
+import { getResizePositions } from "./helpers";
 import type {
   BaseElement,
   CanvasElement,
   Position,
+  ResizeMode,
   RectangleElement,
   ResizeRectanglePosition,
 } from "./types";
@@ -71,7 +72,8 @@ export function getResizeRectangle(
 
 function renderSelectedRect(
   context: CanvasRenderingContext2D,
-  element: BaseElement
+  element: BaseElement,
+  mode: ResizeMode
 ) {
   context.beginPath();
   context.rect(
@@ -84,7 +86,8 @@ function renderSelectedRect(
   context.lineWidth = 1;
   context.stroke();
 
-  for (const position of RESIZE_RECTABLE_POSITIONS) {
+  const resizePositions = getResizePositions(mode);
+  for (const position of resizePositions) {
     renderRectanble(
       context,
       getResizeRectangle(element, position),
@@ -95,7 +98,7 @@ function renderSelectedRect(
 
 export function getSelectedRect(
   state: CanvasElement[]
-): BaseElement | undefined {
+): { element: BaseElement; mode: ResizeMode } | undefined {
   const selectedElements = state.filter((element) => element.selected);
   if (selectedElements.length === 0) {
     return;
@@ -117,10 +120,13 @@ export function getSelectedRect(
   )!;
 
   return {
-    x: minX,
-    y: minY,
-    xSize: maxSizeElement.x - minX + maxSizeElement.xSize,
-    ySize: maxSizeYElement.y - minY + maxSizeYElement.ySize,
+    element: {
+      x: minX,
+      y: minY,
+      xSize: maxSizeElement.x - minX + maxSizeElement.xSize,
+      ySize: maxSizeYElement.y - minY + maxSizeYElement.ySize,
+    },
+    mode: selectedElements.length === 1 ? "single" : "multiple",
   };
 }
 
@@ -176,7 +182,7 @@ export function renderCanvasElements(
 
   const selectedRect = getSelectedRect(state);
   if (selectedRect) {
-    renderSelectedRect(context, selectedRect);
+    renderSelectedRect(context, selectedRect.element, selectedRect.mode);
   }
 
   if (selectionElement) {
