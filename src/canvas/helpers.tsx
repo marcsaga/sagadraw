@@ -1,9 +1,11 @@
+import { hasCollided } from "./elements/collisions";
 import { getResizeRectangle, getSelectedRect } from "./renders";
 import type {
   BaseElement,
   CanvasElement,
   ResizeRectanglePosition,
   ResizeMode,
+  Position,
 } from "./types";
 
 export function setUpCanvas(
@@ -32,18 +34,6 @@ export function standarizeElementPosition<T extends BaseElement>(
     xSize: Math.abs(element.xSize),
     ySize: Math.abs(element.ySize),
   };
-}
-
-export function hasCollided(wrapper: BaseElement, element: BaseElement) {
-  const stdWrapper = standarizeElementPosition(wrapper);
-  const stdElement = standarizeElementPosition(element);
-
-  return (
-    stdWrapper.x < stdElement.x &&
-    stdWrapper.y < stdElement.y &&
-    stdWrapper.x + stdWrapper.xSize > stdElement.x + stdElement.xSize &&
-    stdWrapper.y + stdWrapper.ySize > stdElement.y + stdElement.ySize
-  );
 }
 
 const SINGLE_ELEMENT_RESIZE_POSITIONS = new Set<ResizeRectanglePosition>([
@@ -86,6 +76,7 @@ export function checkSelectedElements(
   if (!selectionElement) return;
   let updated = false;
   const selectedRect = getSelectedRect(state);
+
   let resizeRectangleCollided = false;
   if (selectedRect) {
     resizeRectangleCollided = getResizeRectangles(

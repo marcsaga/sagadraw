@@ -1,21 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import {
   checkSelectedElements,
-  hasCollided,
   setUpCanvas,
   standarizeElementPosition,
-  getResizeRectangles,
 } from "./helpers";
-import { getSelectedRect, renderCanvasElements } from "./renders";
+import { renderCanvasElements } from "./renders";
 import type {
   BaseElement,
   CanvasElement,
+  Position,
   ResizeRectanglePosition,
 } from "./types";
 import type { MenuAction } from "~/components/actions-menu";
 import { useDeleteListener } from "./hooks/use-delete-listener";
 import { resize } from "./elements/resize";
 import { getCursor } from "./elements/get-cursor";
+import { hasMovingCollision, hasResizeCollision } from "./elements/collisions";
 
 interface UseCanvas {
   canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -54,7 +54,7 @@ export const useCanvas = (): UseCanvas => {
   useEffect(() => {
     function updateCursor(event: MouseEvent) {
       const cursor = getCursor({
-        currentMousePosition: { x: event.offsetX, y: event.offsetY },
+        mousePosition: { x: event.offsetX, y: event.offsetY },
         state,
         action,
       });
@@ -68,42 +68,8 @@ export const useCanvas = (): UseCanvas => {
     };
   }, [canvasRef, state, action]);
 
-  const startMovingSelectedElements = ({
-    nativeEvent: { offsetX, offsetY },
-  }: React.MouseEvent): { moving: boolean } => {
-    const position = { x: offsetX, y: offsetY, xSize: 0, ySize: 0 };
-    const selectedRect = getSelectedRect(state);
-    const moving =
-      !!selectedRect && hasCollided(selectedRect.element, position);
-    if (moving) {
-      movingPostion.current = position;
-    }
-
-    return { moving };
-  };
-
-  const startResizingSelectedElements = ({
-    nativeEvent: { offsetX, offsetY },
-  }: React.MouseEvent): { resizing: boolean } => {
-    const position = { x: offsetX, y: offsetY, xSize: 0, ySize: 0 };
-
-    const selectedRect = getSelectedRect(state);
-    if (!selectedRect) return { resizing: false };
-    const resizeCollision = getResizeRectangles(
-      selectedRect.element,
-      selectedRect.mode
-    ).find(([, rectangle]) => hasCollided(rectangle, position));
-    if (resizeCollision) {
-      resizingPosition.current = { ...position, position: resizeCollision[0] };
-    }
-
-    return { resizing: !!resizeCollision };
-  };
-
-  const drawElement = ({
-    nativeEvent: { offsetX, offsetY },
-  }: React.MouseEvent) => {
-    const position = { x: offsetX, y: offsetY, xSize: 0, ySize: 0 };
+  const drawElement = ({ x, y }: Position) => {
+    const position = { x, y, xSize: 0, ySize: 0 };
     setIsDrawing(true);
     switch (action) {
       case "rectangle":
@@ -164,12 +130,23 @@ export const useCanvas = (): UseCanvas => {
     };
   };
 
-  const startDrawing = (event: React.MouseEvent) => {
-    const { resizing } = startResizingSelectedElements(event);
-    if (resizing) return;
-    const { moving } = startMovingSelectedElements(event);
-    if (moving) return;
-    drawElement(event);
+  const startDrawing = ({
+    nativeEvent: { offsetX: x, offsetY: y },
+  }: React.MouseEvent) => {
+    const mousePosition = { x, y };
+    const resizeCollision = hasResizeCollision(state, mousePosition);
+    if (resizeCollision.ok) {
+      resizingPosition.current = { x, y, position: resizeCollision.position };
+      return;
+    }
+
+    const movingCollsion = hasMovingCollision(state, mousePosition);
+    if (movingCollsion.ok) {
+      movingPostion.current = mousePosition;
+      return;
+    }
+
+    drawElement({ x, y });
   };
 
   const draw = (event: React.MouseEvent) => {
