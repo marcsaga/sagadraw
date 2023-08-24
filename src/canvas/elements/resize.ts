@@ -2,62 +2,63 @@ import { getSelectedRect } from "../renders";
 import type {
   CanvasElement,
   Position,
-  ResizeRectanglePosition,
+  ResizeDirection,
   BaseElement,
 } from "../types";
 
 function resizeSingleElement(
   { nativeEvent: { offsetX, offsetY } }: React.MouseEvent,
   state: CanvasElement[],
-  resizePosition: Position & { position: ResizeRectanglePosition }
+  resizeState: ResizeState
 ): CanvasElement[] {
   const newState = state.map((rect) => {
     if (!rect.selected) return rect;
-    switch (resizePosition.position) {
+    const { direction, position } = resizeState;
+    switch (direction) {
       case "top-left":
         return {
           ...rect,
-          x: rect.x + (offsetX - resizePosition.x),
-          y: rect.y + (offsetY - resizePosition.y),
-          xSize: rect.xSize + (resizePosition.x - offsetX),
-          ySize: rect.ySize + (resizePosition.y - offsetY),
+          x: rect.x + (offsetX - position.x),
+          y: rect.y + (offsetY - position.y),
+          xSize: rect.xSize + (position.x - offsetX),
+          ySize: rect.ySize + (position.y - offsetY),
         };
       case "top-right":
         return {
           ...rect,
-          y: rect.y + (offsetY - resizePosition.y),
-          xSize: rect.xSize + (offsetX - resizePosition.x),
-          ySize: rect.ySize + (resizePosition.y - offsetY),
+          y: rect.y + (offsetY - position.y),
+          xSize: rect.xSize + (offsetX - position.x),
+          ySize: rect.ySize + (position.y - offsetY),
         };
       case "bottom-left":
         return {
           ...rect,
-          x: rect.x + (offsetX - resizePosition.x),
-          xSize: rect.xSize + (resizePosition.x - offsetX),
-          ySize: rect.ySize + (offsetY - resizePosition.y),
+          x: rect.x + (offsetX - position.x),
+          xSize: rect.xSize + (position.x - offsetX),
+          ySize: rect.ySize + (offsetY - position.y),
         };
       case "bottom-right":
         return {
           ...rect,
-          xSize: rect.xSize + (offsetX - resizePosition.x),
-          ySize: rect.ySize + (offsetY - resizePosition.y),
+          xSize: rect.xSize + (offsetX - position.x),
+          ySize: rect.ySize + (offsetY - position.y),
         };
       case "top":
         return {
           ...rect,
-          y: rect.y + (offsetY - resizePosition.y),
-          ySize: rect.ySize + (resizePosition.y - offsetY),
+          y: rect.y + (offsetY - position.y),
+          ySize: rect.ySize + (position.y - offsetY),
         };
       case "bottom":
-        return { ...rect, ySize: rect.ySize + (offsetY - resizePosition.y) };
+        return { ...rect, ySize: rect.ySize + (offsetY - position.y) };
       case "left":
         return {
           ...rect,
-          x: rect.x + (offsetX - resizePosition.x),
-          xSize: rect.xSize + (resizePosition.x - offsetX),
+          x: rect.x + (offsetX - position.x),
+          xSize: rect.xSize + (position.x - offsetX),
         };
       case "right":
-        return { ...rect, xSize: rect.xSize + (offsetX - resizePosition.x) };
+        return { ...rect, xSize: rect.xSize + (offsetX - position.x) };
       default:
         throw new Error("Invalid resize rectangle position");
     }
@@ -73,17 +74,18 @@ function getRelativePosition(container: BaseElement, element: BaseElement) {
 function resizeMultipleElements(
   { nativeEvent: { offsetY } }: React.MouseEvent,
   state: CanvasElement[],
-  resizePosition: Position & { position: ResizeRectanglePosition }
+  resizeState: ResizeState
 ): CanvasElement[] {
   const selectedRect = getSelectedRect(state);
   if (!selectedRect) return state;
 
   const newState = state.map((rect) => {
     if (!rect.selected) return rect;
-    const diff = 1 + (offsetY - resizePosition.y) / 100;
+    const { direction, position } = resizeState;
+    const diff = 1 + (offsetY - position.y) / 100;
     const inverseDiff = 1 / diff;
     const relativePosition = getRelativePosition(selectedRect.element, rect);
-    switch (resizePosition.position) {
+    switch (direction) {
       case "bottom-right":
         return {
           ...rect,
@@ -140,15 +142,20 @@ function resizeMultipleElements(
   return newState;
 }
 
+export interface ResizeState {
+  position: Position;
+  direction: ResizeDirection;
+}
+
 export function resize(
   event: React.MouseEvent,
   state: CanvasElement[],
-  resizePosition: Position & { position: ResizeRectanglePosition }
+  resizeState: ResizeState
 ): CanvasElement[] {
   const selectedRect = getSelectedRect(state);
   if (!selectedRect) return state;
 
   return selectedRect.mode === "single"
-    ? resizeSingleElement(event, state, resizePosition)
-    : resizeMultipleElements(event, state, resizePosition);
+    ? resizeSingleElement(event, state, resizeState)
+    : resizeMultipleElements(event, state, resizeState);
 }

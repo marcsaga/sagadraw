@@ -5,7 +5,7 @@ import type {
   Position,
   ResizeMode,
   RectangleElement,
-  ResizeRectanglePosition,
+  ResizeDirection,
 } from "./types";
 
 const RESIZE_RECT_SIZE = 8;
@@ -13,7 +13,7 @@ const SHELL_MARGIN = 8;
 
 export function getResizeRectangle(
   element: BaseElement,
-  resizePosition: ResizeRectanglePosition
+  resizePosition: ResizeDirection
 ): RectangleElement {
   let position: Position;
 

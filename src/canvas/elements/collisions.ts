@@ -4,7 +4,7 @@ import type {
   BaseElement,
   CanvasElement,
   Position,
-  ResizeRectanglePosition,
+  ResizeDirection,
 } from "../types";
 
 export function hasCollided(
@@ -28,7 +28,7 @@ export function hasCollided(
 export function hasResizeCollision(
   state: CanvasElement[],
   mousePosition: Position
-): { ok: true; position: ResizeRectanglePosition } | { ok: false } {
+): { ok: true; position: ResizeDirection } | { ok: false } {
   const selectedRect = getSelectedRect(state);
   if (!selectedRect) return { ok: false };
 

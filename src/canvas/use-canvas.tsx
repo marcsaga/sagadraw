@@ -5,15 +5,10 @@ import {
   standarizeElementPosition,
 } from "./helpers";
 import { renderCanvasElements } from "./renders";
-import type {
-  BaseElement,
-  CanvasElement,
-  Position,
-  ResizeRectanglePosition,
-} from "./types";
+import type { BaseElement, CanvasElement, Position } from "./types";
 import type { MenuAction } from "~/components/actions-menu";
 import { useDeleteListener } from "./hooks/use-delete-listener";
-import { resize } from "./elements/resize";
+import { type ResizeState, resize } from "./elements/resize";
 import { getCursor } from "./elements/get-cursor";
 import { hasMovingCollision, hasResizeCollision } from "./elements/collisions";
 
@@ -28,11 +23,7 @@ interface UseCanvas {
 export const useCanvas = (): UseCanvas => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const movingPostion = useRef<{ x: number; y: number }>();
-  const resizingPosition = useRef<{
-    x: number;
-    y: number;
-    position: ResizeRectanglePosition;
-  }>();
+  const resizingPosition = useRef<ResizeState>();
   const [action, setAction] = useState<MenuAction>();
   const [isDrawing, setIsDrawing] = useState(false);
   const [selectionElement, setSelectionElement] = useState<BaseElement>();
@@ -125,8 +116,7 @@ export const useCanvas = (): UseCanvas => {
     setState(newState);
     resizingPosition.current = {
       ...resizingPosition.current,
-      x: event.nativeEvent.offsetX,
-      y: event.nativeEvent.offsetY,
+      position: { x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY },
     };
   };
 
@@ -136,7 +126,10 @@ export const useCanvas = (): UseCanvas => {
     const mousePosition = { x, y };
     const resizeCollision = hasResizeCollision(state, mousePosition);
     if (resizeCollision.ok) {
-      resizingPosition.current = { x, y, position: resizeCollision.position };
+      resizingPosition.current = {
+        position: { x, y },
+        direction: resizeCollision.position,
+      };
       return;
     }
 

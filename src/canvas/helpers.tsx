@@ -3,7 +3,7 @@ import { getResizeRectangle, getSelectedRect } from "./renders";
 import type {
   BaseElement,
   CanvasElement,
-  ResizeRectanglePosition,
+  ResizeDirection,
   ResizeMode,
   Position,
 } from "./types";
@@ -36,7 +36,7 @@ export function standarizeElementPosition<T extends BaseElement>(
   };
 }
 
-const SINGLE_ELEMENT_RESIZE_POSITIONS = new Set<ResizeRectanglePosition>([
+const SINGLE_ELEMENT_RESIZE_POSITIONS = new Set<ResizeDirection>([
   "top-left",
   "top-right",
   "bottom-left",
@@ -47,7 +47,7 @@ const SINGLE_ELEMENT_RESIZE_POSITIONS = new Set<ResizeRectanglePosition>([
   "bottom",
 ]);
 
-const MULTIPLE_ELEMENTS_RESIZE_POSITIONS = new Set<ResizeRectanglePosition>([
+const MULTIPLE_ELEMENTS_RESIZE_POSITIONS = new Set<ResizeDirection>([
   "top-left",
   "top-right",
   "bottom-left",
@@ -62,7 +62,7 @@ export const getResizePositions = (mode: ResizeMode) =>
 export function getResizeRectangles(
   element: BaseElement,
   mode: ResizeMode
-): [ResizeRectanglePosition, BaseElement][] {
+): [ResizeDirection, BaseElement][] {
   return Array.from(getResizePositions(mode)).map((position) => [
     position,
     getResizeRectangle(element, position),

@@ -21,7 +21,7 @@ export interface RectangleElement extends DrawedElement {
 
 export type CanvasElement = RectangleElement;
 
-export type ResizeRectanglePosition =
+export type ResizeDirection =
   | "top-left"
   | "top-right"
   | "bottom-left"

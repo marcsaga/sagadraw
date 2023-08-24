@@ -1,17 +1,13 @@
 import type { MenuAction } from "~/components/actions-menu";
 import { getResizeRectangles } from "../helpers";
-import type {
-  CanvasElement,
-  Position,
-  ResizeRectanglePosition,
-} from "../types";
+import type { CanvasElement, Position, ResizeDirection } from "../types";
 import { getSelectedRect } from "../renders";
 import { hasCollided } from "./collisions";
 
 type ResizeCursor = "nesw-resize" | "nwse-resize" | "ns-resize" | "ew-resize";
 type Cursor = "default" | "move" | "pointer" | "crosshair" | ResizeCursor;
 
-const resizeCursorDict: Record<ResizeRectanglePosition, ResizeCursor> = {
+const resizeCursorDict: Record<ResizeDirection, ResizeCursor> = {
   "top-left": "nwse-resize",
   "top-right": "nesw-resize",
   "bottom-left": "nesw-resize",
