@@ -71,6 +71,8 @@ function getRelativePosition(container: BaseElement, element: BaseElement) {
   return { x: element.x - container.x, y: element.y - container.y };
 }
 
+const MULTIPLE_RESIZE_VELOCITY = 300;
+
 function resizeMultipleElements(
   { nativeEvent: { offsetY } }: React.MouseEvent,
   state: CanvasElement[],
@@ -82,7 +84,7 @@ function resizeMultipleElements(
   const newState = state.map((rect) => {
     if (!rect.selected) return rect;
     const { direction, position } = resizeState;
-    const diff = 1 + (offsetY - position.y) / 100;
+    const diff = 1 + (offsetY - position.y) / MULTIPLE_RESIZE_VELOCITY;
     const inverseDiff = 1 / diff;
     const relativePosition = getRelativePosition(selectedRect.element, rect);
     switch (direction) {
