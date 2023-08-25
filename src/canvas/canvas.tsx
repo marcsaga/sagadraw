@@ -6,8 +6,9 @@ export const Canvas = () => {
     useCanvas();
 
   return (
-    <div className="rootContainer">
+    <div>
       <canvas
+        id="canvas"
         ref={canvasRef}
         onMouseDown={startDrawing}
         onMouseMove={draw}

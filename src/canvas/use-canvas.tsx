@@ -79,8 +79,8 @@ export const useCanvas = (): UseCanvas => {
     };
   }, [canvasRef, state, action]);
 
-  const drawElement = ({ x, y }: Position) => {
-    const position = { x, y, xSize: 0, ySize: 0 };
+  const drawElement = (mousePosition: Position) => {
+    const position = { ...mousePosition, xSize: 0, ySize: 0 };
     setIsDrawing(true);
     switch (action) {
       case "rectangle":
@@ -91,63 +91,57 @@ export const useCanvas = (): UseCanvas => {
     }
   };
 
-  const updateDrawedElement = ({
-    nativeEvent: { offsetX, offsetY },
-  }: React.MouseEvent) => {
+  const updateDrawedElement = (mousePosition: Position) => {
     if (!isDrawing) return;
     if (selectionElement) {
       setSelectionElement({
         ...selectionElement,
-        xSize: offsetX - selectionElement.x,
-        ySize: offsetY - selectionElement.y,
+        xSize: mousePosition.x - selectionElement.x,
+        ySize: mousePosition.y - selectionElement.y,
       });
     } else if (state.length) {
       const currentRect = state.splice(-1)[0]!;
       const newRect = {
         ...currentRect,
-        xSize: offsetX - currentRect.x,
-        ySize: offsetY - currentRect.y,
+        xSize: mousePosition.x - currentRect.x,
+        ySize: mousePosition.y - currentRect.y,
       };
       setState([...state, newRect]);
     }
   };
 
-  const updateMovingElement = ({
-    nativeEvent: { offsetX, offsetY },
-  }: React.MouseEvent) => {
+  const updateMovingElement = (mousePosition: Position) => {
     if (!movingPostion.current) return;
     const newState = state.map((rect) => {
       if (rect.selected) {
         rect = {
           ...rect,
-          x: rect.x + (offsetX - movingPostion.current!.x),
-          y: rect.y + (offsetY - movingPostion.current!.y),
+          x: rect.x + (mousePosition.x - movingPostion.current!.x),
+          y: rect.y + (mousePosition.y - movingPostion.current!.y),
         };
       }
       return rect;
     });
-    movingPostion.current = { x: offsetX, y: offsetY };
+    movingPostion.current = mousePosition;
     setState(newState);
   };
 
-  const updateResizingElement = (event: React.MouseEvent) => {
+  const updateResizingElement = (mousePosition: Position) => {
     if (!resizingPosition.current) return;
-    const newState = resize(event, state, resizingPosition.current);
+    const newState = resize(mousePosition, state, resizingPosition.current);
     setState(newState);
     resizingPosition.current = {
       ...resizingPosition.current,
-      position: { x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY },
+      position: mousePosition,
     };
   };
 
-  const startDrawing = ({
-    nativeEvent: { offsetX: x, offsetY: y },
-  }: React.MouseEvent) => {
-    const mousePosition = { x, y };
+  const startDrawing = ({ clientX, clientY }: React.MouseEvent) => {
+    const mousePosition = { x: clientX, y: clientY };
     const resizeCollision = hasResizeCollision(state, mousePosition);
     if (resizeCollision.ok) {
       resizingPosition.current = {
-        position: { x, y },
+        position: mousePosition,
         direction: resizeCollision.position,
       };
       return;
@@ -166,13 +160,14 @@ export const useCanvas = (): UseCanvas => {
       return;
     }
 
-    drawElement({ x, y });
+    drawElement(mousePosition);
   };
 
-  const draw = (event: React.MouseEvent) => {
-    updateDrawedElement(event);
-    updateMovingElement(event);
-    updateResizingElement(event);
+  const draw = ({ clientX, clientY }: React.MouseEvent) => {
+    const mousePosition = { x: clientX, y: clientY };
+    updateDrawedElement(mousePosition);
+    updateMovingElement(mousePosition);
+    updateResizingElement(mousePosition);
   };
 
   const endDrawing = () => {

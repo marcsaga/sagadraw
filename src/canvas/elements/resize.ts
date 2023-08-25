@@ -7,7 +7,7 @@ import type {
 } from "../types";
 
 function resizeSingleElement(
-  { nativeEvent: { offsetX, offsetY } }: React.MouseEvent,
+  mousePosition: Position,
   state: CanvasElement[],
   resizeState: ResizeState
 ): CanvasElement[] {
@@ -18,47 +18,47 @@ function resizeSingleElement(
       case "top-left":
         return {
           ...rect,
-          x: rect.x + (offsetX - position.x),
-          y: rect.y + (offsetY - position.y),
-          xSize: rect.xSize + (position.x - offsetX),
-          ySize: rect.ySize + (position.y - offsetY),
+          x: rect.x + (mousePosition.x - position.x),
+          y: rect.y + (mousePosition.y - position.y),
+          xSize: rect.xSize + (position.x - mousePosition.x),
+          ySize: rect.ySize + (position.y - mousePosition.y),
         };
       case "top-right":
         return {
           ...rect,
-          y: rect.y + (offsetY - position.y),
-          xSize: rect.xSize + (offsetX - position.x),
-          ySize: rect.ySize + (position.y - offsetY),
+          y: rect.y + (mousePosition.y - position.y),
+          xSize: rect.xSize + (mousePosition.x - position.x),
+          ySize: rect.ySize + (position.y - mousePosition.y),
         };
       case "bottom-left":
         return {
           ...rect,
-          x: rect.x + (offsetX - position.x),
-          xSize: rect.xSize + (position.x - offsetX),
-          ySize: rect.ySize + (offsetY - position.y),
+          x: rect.x + (mousePosition.x - position.x),
+          xSize: rect.xSize + (position.x - mousePosition.x),
+          ySize: rect.ySize + (mousePosition.y - position.y),
         };
       case "bottom-right":
         return {
           ...rect,
-          xSize: rect.xSize + (offsetX - position.x),
-          ySize: rect.ySize + (offsetY - position.y),
+          xSize: rect.xSize + (mousePosition.x - position.x),
+          ySize: rect.ySize + (mousePosition.y - position.y),
         };
       case "top":
         return {
           ...rect,
-          y: rect.y + (offsetY - position.y),
-          ySize: rect.ySize + (position.y - offsetY),
+          y: rect.y + (mousePosition.y - position.y),
+          ySize: rect.ySize + (position.y - mousePosition.y),
         };
       case "bottom":
-        return { ...rect, ySize: rect.ySize + (offsetY - position.y) };
+        return { ...rect, ySize: rect.ySize + (mousePosition.y - position.y) };
       case "left":
         return {
           ...rect,
-          x: rect.x + (offsetX - position.x),
-          xSize: rect.xSize + (position.x - offsetX),
+          x: rect.x + (mousePosition.x - position.x),
+          xSize: rect.xSize + (position.x - mousePosition.x),
         };
       case "right":
-        return { ...rect, xSize: rect.xSize + (offsetX - position.x) };
+        return { ...rect, xSize: rect.xSize + (mousePosition.x - position.x) };
       default:
         throw new Error("Invalid resize rectangle position");
     }
@@ -74,7 +74,7 @@ function getRelativePosition(container: BaseElement, element: BaseElement) {
 const MULTIPLE_RESIZE_VELOCITY = 300;
 
 function resizeMultipleElements(
-  { nativeEvent: { offsetY } }: React.MouseEvent,
+  mousePosition: Position,
   state: CanvasElement[],
   resizeState: ResizeState
 ): CanvasElement[] {
@@ -84,7 +84,7 @@ function resizeMultipleElements(
   const newState = state.map((rect) => {
     if (!rect.selected) return rect;
     const { direction, position } = resizeState;
-    const diff = 1 + (offsetY - position.y) / MULTIPLE_RESIZE_VELOCITY;
+    const diff = 1 + (mousePosition.y - position.y) / MULTIPLE_RESIZE_VELOCITY;
     const inverseDiff = 1 / diff;
     const relativePosition = getRelativePosition(selectedRect.element, rect);
     switch (direction) {
@@ -150,7 +150,7 @@ export interface ResizeState {
 }
 
 export function resize(
-  event: React.MouseEvent,
+  mousePosition: Position,
   state: CanvasElement[],
   resizeState: ResizeState
 ): CanvasElement[] {
@@ -158,6 +158,6 @@ export function resize(
   if (!selectedRect) return state;
 
   return selectedRect.mode === "single"
-    ? resizeSingleElement(event, state, resizeState)
-    : resizeMultipleElements(event, state, resizeState);
+    ? resizeSingleElement(mousePosition, state, resizeState)
+    : resizeMultipleElements(mousePosition, state, resizeState);
 }
