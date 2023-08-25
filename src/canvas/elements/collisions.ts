@@ -1,4 +1,4 @@
-import { getResizeRectangles, standarizeElementPosition } from "../helpers";
+import { getResizeRectangles, standarizeElement } from "../helpers";
 import { SHELL_MARGIN, getSelectedRect } from "../renders";
 import type {
   BaseElement,
@@ -11,10 +11,10 @@ export function hasCollided(
   wrapper: BaseElement,
   target: Position | BaseElement
 ) {
-  const stdWrapper = standarizeElementPosition(wrapper);
+  const stdWrapper = standarizeElement(wrapper);
   const stdTarget =
     "xSize" in target
-      ? standarizeElementPosition(target)
+      ? standarizeElement(target)
       : { ...target, xSize: 0, ySize: 0 };
 
   return (

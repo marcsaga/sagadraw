@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   checkSelectedElements,
   setUpCanvas,
-  standarizeElementPosition,
+  standarizeElement,
 } from "./helpers";
 import { renderCanvasElements } from "./renders";
 import type { BaseElement, CanvasElement, Position } from "./types";
@@ -162,6 +162,7 @@ export const useCanvas = (): UseCanvas => {
     const edgesCollision = hasCollidedWithEdges(state, mousePosition);
     if (edgesCollision.ok) {
       setState(edgesCollision.newState);
+      movingPostion.current = mousePosition;
       return;
     }
 
@@ -176,7 +177,7 @@ export const useCanvas = (): UseCanvas => {
 
   const endDrawing = () => {
     if (isDrawing && state.length) {
-      const std = standarizeElementPosition(state.splice(-1)[0]!);
+      const std = standarizeElement(state.splice(-1)[0]!);
       setState([...state, std]);
       setIsDrawing(false);
     }

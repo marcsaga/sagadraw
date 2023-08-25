@@ -1,4 +1,4 @@
-import { getResizePositions } from "./helpers";
+import { getResizePositions, standarizeElement } from "./helpers";
 import type {
   BaseElement,
   CanvasElement,
@@ -120,12 +120,12 @@ export function getSelectedRect(
   )!;
 
   return {
-    element: {
+    element: standarizeElement({
       x: minX,
       y: minY,
       xSize: maxSizeElement.x - minX + maxSizeElement.xSize,
       ySize: maxSizeYElement.y - minY + maxSizeYElement.ySize,
-    },
+    }),
     mode: selectedElements.length === 1 ? "single" : "multiple",
   };
 }

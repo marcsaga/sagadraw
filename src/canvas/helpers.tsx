@@ -23,9 +23,7 @@ export function setUpCanvas(
   return context;
 }
 
-export function standarizeElementPosition<T extends BaseElement>(
-  element: T
-): T {
+export function standarizeElement<T extends BaseElement>(element: T): T {
   return {
     ...element,
     x: element.xSize < 0 ? element.x + element.xSize : element.x,
