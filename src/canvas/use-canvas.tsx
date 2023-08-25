@@ -15,6 +15,7 @@ import {
   hasMovingCollision,
   hasResizeCollision,
 } from "./elements/collisions";
+import { CanvasElementStorage } from "./storage/canvas-element-storage";
 
 interface UseCanvas {
   canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -22,6 +23,7 @@ interface UseCanvas {
   draw: (event: React.MouseEvent) => void;
   endDrawing: () => void;
   selectAction: (action: MenuAction) => void;
+  deleteAll: () => void;
 }
 
 export const useCanvas = (): UseCanvas => {
@@ -32,8 +34,19 @@ export const useCanvas = (): UseCanvas => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [selectionElement, setSelectionElement] = useState<BaseElement>();
   const [state, setState] = useState<CanvasElement[]>([]);
+  const firstLoad = useRef(true);
 
   useDeleteListener(setState);
+
+  useEffect(() => {
+    if (canvasRef.current && firstLoad.current) {
+      const storedElements = CanvasElementStorage.get();
+      if (storedElements) {
+        setState(storedElements);
+      }
+      firstLoad.current = false;
+    }
+  }, [canvasRef]);
 
   useEffect(() => {
     const context = setUpCanvas(canvasRef.current);
@@ -43,6 +56,9 @@ export const useCanvas = (): UseCanvas => {
     const collisionResponse = checkSelectedElements(state, selectionElement);
     if (collisionResponse?.updated) {
       setState(collisionResponse.newState);
+    }
+    if (!firstLoad.current) {
+      CanvasElementStorage.set(state);
     }
   }, [canvasRef, state, selectionElement]);
 
@@ -176,5 +192,9 @@ export const useCanvas = (): UseCanvas => {
     setAction(action);
   };
 
-  return { canvasRef, startDrawing, draw, endDrawing, selectAction };
+  const deleteAll = () => {
+    setState([]);
+  };
+
+  return { canvasRef, startDrawing, draw, endDrawing, selectAction, deleteAll };
 };

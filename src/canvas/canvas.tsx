@@ -2,7 +2,7 @@ import { ActionsMenu } from "~/components/actions-menu";
 import { useCanvas } from "./use-canvas";
 
 export const Canvas = () => {
-  const { canvasRef, startDrawing, draw, endDrawing, selectAction } =
+  const { canvasRef, startDrawing, draw, endDrawing, selectAction, deleteAll } =
     useCanvas();
 
   return (
@@ -13,7 +13,7 @@ export const Canvas = () => {
         onMouseMove={draw}
         onMouseUp={endDrawing}
       ></canvas>
-      <ActionsMenu selectAction={selectAction} />
+      <ActionsMenu selectAction={selectAction} deleteAll={deleteAll} />
     </div>
   );
 };

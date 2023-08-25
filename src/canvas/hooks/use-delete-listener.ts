@@ -7,10 +7,7 @@ export function useDeleteListener(
   useEffect(() => {
     const listener = (event: KeyboardEvent) => {
       if (event.key === "Backspace") {
-        updateState((state) => {
-          const newState = state.filter((element) => !element.selected);
-          return newState;
-        });
+        updateState((state) => state.filter((element) => !element.selected));
       }
     };
     document.addEventListener("keydown", listener);
