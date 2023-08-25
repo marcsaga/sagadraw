@@ -10,7 +10,11 @@ import type { MenuAction } from "~/components/actions-menu";
 import { useDeleteListener } from "./hooks/use-delete-listener";
 import { type ResizeState, resize } from "./elements/resize";
 import { getCursor } from "./elements/get-cursor";
-import { hasMovingCollision, hasResizeCollision } from "./elements/collisions";
+import {
+  hasCollidedWithEdges,
+  hasMovingCollision,
+  hasResizeCollision,
+} from "./elements/collisions";
 
 interface UseCanvas {
   canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -136,6 +140,12 @@ export const useCanvas = (): UseCanvas => {
     const movingCollsion = hasMovingCollision(state, mousePosition);
     if (movingCollsion.ok) {
       movingPostion.current = mousePosition;
+      return;
+    }
+
+    const edgesCollision = hasCollidedWithEdges(state, mousePosition);
+    if (edgesCollision.ok) {
+      setState(edgesCollision.newState);
       return;
     }
 

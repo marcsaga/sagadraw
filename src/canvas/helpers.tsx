@@ -5,7 +5,6 @@ import type {
   CanvasElement,
   ResizeDirection,
   ResizeMode,
-  Position,
 } from "./types";
 
 export function setUpCanvas(
@@ -76,6 +75,7 @@ export function checkSelectedElements(
   if (!selectionElement) return;
   let updated = false;
   const selectedRect = getSelectedRect(state);
+  console.log("🚀 ~ file: helpers.tsx:78 ~ state:", state);
 
   let resizeRectangleCollided = false;
   if (selectedRect) {

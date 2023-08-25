@@ -1,5 +1,5 @@
 import { getResizeRectangles, standarizeElementPosition } from "../helpers";
-import { getSelectedRect } from "../renders";
+import { SHELL_MARGIN, getSelectedRect } from "../renders";
 import type {
   BaseElement,
   CanvasElement,
@@ -36,10 +36,20 @@ export function hasResizeCollision(
     selectedRect.element,
     selectedRect.mode
   ).find(([, rectangle]) => hasCollided(rectangle, mousePosition));
-  if (resizeCollision) {
-    return { ok: true, position: resizeCollision[0] };
-  }
-  return { ok: false };
+
+  return resizeCollision
+    ? { ok: true, position: resizeCollision[0] }
+    : { ok: false };
+}
+
+function expandRect(rect: BaseElement, amount: number): BaseElement {
+  return {
+    ...rect,
+    x: rect.x - amount,
+    y: rect.y - amount,
+    xSize: rect.xSize + amount * 2,
+    ySize: rect.ySize + amount * 2,
+  };
 }
 
 export function hasMovingCollision(
@@ -48,5 +58,42 @@ export function hasMovingCollision(
 ): { ok: boolean } {
   const selectedRect = getSelectedRect(state);
   if (!selectedRect) return { ok: false };
-  return { ok: hasCollided(selectedRect.element, mousePosition) };
+  return {
+    ok: hasCollided(
+      expandRect(selectedRect.element, SHELL_MARGIN),
+      mousePosition
+    ),
+  };
+}
+
+const EDGE_COLLISION_MARGIN = 5;
+
+export function hasCollidedWithEdges(
+  state: CanvasElement[],
+  mousePosition: Position
+): { ok: true; newState: CanvasElement[] } | { ok: false } {
+  const selectedIndex = state.findIndex((element) => {
+    return (
+      (mousePosition.x > element.x - EDGE_COLLISION_MARGIN &&
+        mousePosition.x < element.x + EDGE_COLLISION_MARGIN) ||
+      (mousePosition.y > element.y - EDGE_COLLISION_MARGIN &&
+        mousePosition.y < element.y + EDGE_COLLISION_MARGIN) ||
+      (mousePosition.x > element.x + element.xSize - EDGE_COLLISION_MARGIN &&
+        mousePosition.x < element.x + element.xSize + EDGE_COLLISION_MARGIN) ||
+      (mousePosition.y > element.y + element.ySize - EDGE_COLLISION_MARGIN &&
+        mousePosition.y < element.y + element.ySize + EDGE_COLLISION_MARGIN)
+    );
+  });
+
+  if (selectedIndex === -1) {
+    return { ok: false };
+  }
+
+  return {
+    ok: true,
+    newState: state.map((element, index) => ({
+      ...element,
+      selected: selectedIndex === index,
+    })),
+  };
 }

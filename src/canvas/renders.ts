@@ -9,7 +9,7 @@ import type {
 } from "./types";
 
 const RESIZE_RECT_SIZE = 8;
-const SHELL_MARGIN = 8;
+export const SHELL_MARGIN = 8;
 
 export function getResizeRectangle(
   element: BaseElement,
