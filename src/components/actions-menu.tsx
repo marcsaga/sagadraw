@@ -15,8 +15,7 @@ export function ActionsMenu({ selectAction, deleteAll }: ActionsMenuProps) {
       {options.map(({ label, action }) => (
         <button
           key={action}
-          id={`actions-menu-${action}`}
-          className="rounded bg-black p-2 text-white"
+          className="action-button rounded bg-black p-2 text-white"
           onClick={() => selectAction(action)}
         >
           <span>{label}</span>

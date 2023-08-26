@@ -13,6 +13,7 @@ export const Canvas = () => {
         onMouseDown={startDrawing}
         onMouseMove={draw}
         onMouseUp={endDrawing}
+        title="interactive_canvas"
       ></canvas>
       <ActionsMenu selectAction={selectAction} deleteAll={deleteAll} />
     </div>

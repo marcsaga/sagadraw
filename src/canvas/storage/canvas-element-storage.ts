@@ -25,4 +25,12 @@ export class CanvasElementStorage {
       console.error("Failed to get canvas state from localStorage");
     }
   }
+
+  static clear() {
+    try {
+      window.localStorage.removeItem("canvas-state");
+    } catch (error) {
+      console.error("Failed to clear canvas state from localStorage");
+    }
+  }
 }
