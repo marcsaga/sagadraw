@@ -3,19 +3,19 @@ import {
   checkSelectedElements,
   setUpCanvas,
   standarizeElement,
-} from "./helpers";
-import { renderCanvasElements } from "./renders";
-import type { BaseElement, CanvasElement, Position } from "./types";
+} from "../helpers";
+import { renderCanvasElements } from "../renders";
+import type { BaseElement, CanvasElement, Position } from "../types";
 import type { MenuAction } from "~/components/actions-menu";
-import { useDeleteListener } from "./hooks/use-delete-listener";
-import { type ResizeState, resize } from "./elements/resize";
-import { getCursor } from "./elements/get-cursor";
+import { useDeleteListener } from "./use-delete-listener";
+import { type ResizeState, resize } from "../elements/resize";
+import { getCursor } from "../elements/get-cursor";
 import {
   hasCollidedWithEdges,
   hasMovingCollision,
   hasResizeCollision,
-} from "./elements/collisions";
-import { CanvasElementStorage } from "./storage/canvas-element-storage";
+} from "../elements/collisions";
+import { CanvasElementStorage } from "../storage/canvas-element-storage";
 
 interface UseCanvas {
   canvasRef: React.RefObject<HTMLCanvasElement>;

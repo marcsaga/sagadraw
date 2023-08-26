@@ -1,5 +1,5 @@
 import { ActionsMenu } from "~/components/actions-menu";
-import { useCanvas } from "./use-canvas";
+import { useCanvas } from "./hooks/use-canvas";
 
 export const Canvas = () => {
   const { canvasRef, startDrawing, draw, endDrawing, selectAction, deleteAll } =
