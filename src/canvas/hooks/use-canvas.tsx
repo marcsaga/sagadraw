@@ -16,6 +16,7 @@ import {
   hasResizeCollision,
 } from "../elements/collisions";
 import { CanvasElementStorage } from "../storage/canvas-element-storage";
+import { useSyncLocalStorage } from "./use-sync-local-storage";
 
 interface UseCanvas {
   canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -34,19 +35,9 @@ export const useCanvas = (): UseCanvas => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [selectionElement, setSelectionElement] = useState<BaseElement>();
   const [state, setState] = useState<CanvasElement[]>([]);
-  const firstLoad = useRef(true);
 
   useDeleteListener(setState);
-
-  useEffect(() => {
-    if (canvasRef.current && firstLoad.current) {
-      const storedElements = CanvasElementStorage.get();
-      if (storedElements) {
-        setState(storedElements);
-      }
-      firstLoad.current = false;
-    }
-  }, [canvasRef]);
+  const { syncLocalStorage } = useSyncLocalStorage(setState);
 
   useEffect(() => {
     const context = setUpCanvas(canvasRef.current);
@@ -57,10 +48,8 @@ export const useCanvas = (): UseCanvas => {
     if (collisionResponse?.updated) {
       setState(collisionResponse.newState);
     }
-    if (!firstLoad.current) {
-      CanvasElementStorage.set(state);
-    }
-  }, [canvasRef, state, selectionElement]);
+    syncLocalStorage(state);
+  }, [canvasRef, state, selectionElement, syncLocalStorage]);
 
   useEffect(() => {
     function updateCursor(event: MouseEvent) {
