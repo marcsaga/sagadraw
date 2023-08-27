@@ -6,6 +6,7 @@ export const Canvas = () => {
   const {
     canvasRef,
     textInput,
+    action,
     onChangeTextInput,
     startDrawing,
     draw,
@@ -25,7 +26,11 @@ export const Canvas = () => {
         onMouseUp={endDrawing}
         onDoubleClick={onDoubleClick}
       ></canvas>
-      <ActionsMenu selectAction={selectAction} deleteAll={deleteAll} />
+      <ActionsMenu
+        selectAction={selectAction}
+        deleteAll={deleteAll}
+        action={action}
+      />
       {textInput && (
         <Textarea textInput={textInput} onChangeTextInput={onChangeTextInput} />
       )}

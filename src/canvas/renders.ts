@@ -20,30 +20,32 @@ export function getLineResizeRectagles(
   element: LineElement
 ): [ResizeLineDirection, RectangleElement][] {
   const margin = RESIZE_RECT_SIZE / 2;
+  const topX = element.x - margin;
+  const topY = element.y - margin;
+  const bottomX = element.x + element.xSize - margin;
+  const bottomY = element.y + element.ySize - margin;
 
-  const dx = element.xSize;
-  const dy = element.ySize;
-
-  const magnitude = Math.sqrt(dx * dx + dy * dy);
-
-  const ux = dx / magnitude;
-  const uy = dy / magnitude;
-
-  const topX = element.x - ux * margin - RESIZE_RECT_SIZE / 2;
-  const topY = element.y - uy * margin - RESIZE_RECT_SIZE / 2;
-  const bottomX =
-    element.x + element.xSize + ux * margin - RESIZE_RECT_SIZE / 2;
-  const bottomY =
-    element.y + element.ySize + uy * margin - RESIZE_RECT_SIZE / 2;
-
-  const rectangleBase = {
-    xSize: RESIZE_RECT_SIZE,
-    ySize: RESIZE_RECT_SIZE,
-    type: "rectangle" as const,
-  };
   return [
-    ["line-start", { x: topX, y: topY, ...rectangleBase }],
-    ["line-end", { x: bottomX, y: bottomY, ...rectangleBase }],
+    [
+      "line-start",
+      {
+        x: topX,
+        y: topY,
+        xSize: RESIZE_RECT_SIZE,
+        ySize: RESIZE_RECT_SIZE,
+        type: "rectangle",
+      },
+    ],
+    [
+      "line-end",
+      {
+        x: bottomX,
+        y: bottomY,
+        xSize: RESIZE_RECT_SIZE,
+        ySize: RESIZE_RECT_SIZE,
+        type: "rectangle",
+      },
+    ],
   ];
 }
 
@@ -125,11 +127,7 @@ function renderSelectedRect(
 
   const resizePositions = getResizePositions(mode);
   for (const position of resizePositions) {
-    renderRectanble(
-      context,
-      getResizeRectangle(element, position),
-      "resize-rect"
-    );
+    renderRectanble(context, getResizeRectangle(element, position), "resize");
   }
 }
 
@@ -149,7 +147,7 @@ function renderSelectedLine(
       renderRectanble(
         context,
         rectangle,
-        element.resizeDirection === direction ? "selection" : "resize-rect"
+        element.resizeDirection === direction ? "resize-select" : "resize"
       );
     }
   }
@@ -208,7 +206,7 @@ export function getSelectedRect(
 function renderRectanble(
   context: CanvasRenderingContext2D,
   rect: BaseElement,
-  variant: "drawed" | "selected" | "selection" | "resize-rect"
+  variant: "drawed" | "selected" | "selection" | "resize" | "resize-select"
 ) {
   context.beginPath();
   context.roundRect(rect.x, rect.y, rect.xSize, rect.ySize, 16);
@@ -216,10 +214,12 @@ function renderRectanble(
   switch (variant) {
     case "drawed":
       context.strokeStyle = "black";
+      context.fillStyle = "transparent";
       context.lineWidth = 1;
       break;
     case "selected":
       context.strokeStyle = "black";
+      context.fillStyle = "transparent";
       context.lineWidth = 2;
       break;
     case "selection":
@@ -228,9 +228,15 @@ function renderRectanble(
       context.lineWidth = 1;
       context.fill();
       break;
-    case "resize-rect":
+    case "resize":
       context.strokeStyle = "rgba(0, 0, 200)";
       context.fillStyle = "white";
+      context.lineWidth = 1;
+      context.fill();
+      break;
+    case "resize-select":
+      context.strokeStyle = "rgba(0, 0, 200)";
+      context.fillStyle = "rgba(0, 0, 200)";
       context.lineWidth = 1;
       context.fill();
       break;
@@ -248,22 +254,24 @@ export function renderCanvasElements(
     switch (element.type) {
       case "rectangle":
         renderRectanble(context, element, "drawed");
+        if (element.selected && selectedRect?.mode === "multiple") {
+          renderSelectedRect(context, element, "none");
+        }
         break;
       case "text":
         renderText(context, element);
+        if (element.selected && selectedRect?.mode === "multiple") {
+          renderSelectedRect(context, element, "none");
+        }
         break;
       case "line":
         renderLine(context, element);
+        if (element.selected) {
+          renderSelectedLine(context, element, {
+            resizable: selectedRect?.mode !== "multiple",
+          });
+        }
         break;
-    }
-    if (element.selected) {
-      if (element.type === "line") {
-        renderSelectedLine(context, element, {
-          resizable: selectedRect?.mode !== "multiple",
-        });
-      } else if (selectedRect?.mode === "multiple") {
-        renderSelectedRect(context, element, "none");
-      }
     }
   }
 
@@ -280,8 +288,9 @@ export function renderText(
   context: CanvasRenderingContext2D,
   element: TextElement
 ) {
+  context.beginPath();
+  context.fillStyle = "black";
   context.font = element.fontSize + "px sans-serif";
-
   const lines = element.text.split("\n");
   context.textBaseline = "top";
 

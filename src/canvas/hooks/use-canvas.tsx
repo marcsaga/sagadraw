@@ -3,6 +3,7 @@ import {
   checkSelectedElements,
   setUpCanvas,
   standarizeElement,
+  unSelectAll,
 } from "../helpers";
 import { renderCanvasElements } from "../renders";
 import type {
@@ -12,7 +13,7 @@ import type {
   TextElement,
 } from "../types";
 import type { MenuAction } from "~/components/actions-menu";
-import { useDeleteListener } from "./use-delete-listener";
+import { useShortcutsListener } from "./use-shortcuts-listener";
 import { type ResizeState, resize } from "../elements/resize";
 import { getCursor } from "../elements/get-cursor";
 import {
@@ -29,6 +30,7 @@ import {
 
 interface UseCanvas {
   canvasRef: React.RefObject<HTMLCanvasElement>;
+  action: MenuAction;
   startDrawing: (event: React.MouseEvent) => void;
   draw: (event: React.MouseEvent) => void;
   endDrawing: () => void;
@@ -43,13 +45,13 @@ export const useCanvas = (): UseCanvas => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const movingPostion = useRef<{ x: number; y: number }>();
   const resizingPosition = useRef<ResizeState>();
-  const [action, setAction] = useState<MenuAction>();
+  const [action, setAction] = useState<MenuAction>("select");
   const [isDrawing, setIsDrawing] = useState(false);
   const [selectionElement, setSelectionElement] = useState<BaseElement>();
   const [state, setState] = useState<CanvasElement[]>([]);
   const [textInput, setTextInput] = useState<TextElement | undefined>();
 
-  useDeleteListener(setState);
+  useShortcutsListener(state, setState);
   const { syncLocalStorage } = useSyncLocalStorage(setState);
 
   useEffect(() => {
@@ -83,15 +85,19 @@ export const useCanvas = (): UseCanvas => {
 
   const drawElement = (mousePosition: Position) => {
     setIsDrawing(true);
+    if (action === "select") {
+      setSelectionElement(createRectangleElement(mousePosition));
+    }
+    const newState = unSelectAll(state);
     switch (action) {
       case "rectangle":
-        setState([...state, createRectangleElement(mousePosition)]);
+        setState([...newState, createRectangleElement(mousePosition)]);
         break;
       case "line":
-        setState([...state, createLineElement(mousePosition)]);
+        setState([...newState, createLineElement(mousePosition)]);
         break;
       default:
-        setSelectionElement(createRectangleElement(mousePosition));
+        throw new Error(`Action ${action} not implemented`);
     }
   };
 
@@ -150,6 +156,11 @@ export const useCanvas = (): UseCanvas => {
     }
 
     const mousePosition = { x: clientX, y: clientY };
+    if (action !== "select") {
+      drawElement(mousePosition);
+      return;
+    }
+
     const resizeCollision = hasResizeCollision(state, mousePosition);
     if (resizeCollision.ok) {
       resizingPosition.current = {
@@ -169,7 +180,8 @@ export const useCanvas = (): UseCanvas => {
       return;
     }
 
-    drawElement(mousePosition);
+    setIsDrawing(true);
+    setSelectionElement(createRectangleElement(mousePosition));
   };
 
   const draw = ({ clientX: x, clientY: y }: React.MouseEvent) => {
@@ -180,40 +192,50 @@ export const useCanvas = (): UseCanvas => {
   };
 
   const endDrawing = () => {
-    if (isDrawing && state.length) {
-      let lastElement = state.splice(-1)[0]!;
-      if (lastElement.type === "rectangle") {
+    let newState = [...state];
+    if (isDrawing && newState.length) {
+      let lastElement = newState.splice(-1)[0];
+      if (
+        Math.abs(lastElement?.xSize ?? 0) < 4 &&
+        Math.abs(lastElement?.ySize ?? 0) < 4
+      ) {
+        lastElement = undefined;
+      } else if (lastElement?.type === "rectangle") {
         lastElement = standarizeElement(lastElement);
       }
-      setState([...state, lastElement]);
+      if (lastElement) {
+        newState.push(lastElement);
+      }
       setIsDrawing(false);
     }
+    setAction("select");
     movingPostion.current = undefined;
-    setAction(undefined);
     if (selectionElement) {
       setSelectionElement(undefined);
     }
     if (resizingPosition.current) {
       resizingPosition.current = undefined;
-      setState(
-        state.map((element) =>
-          "resizeDirection" in element
-            ? { ...element, resizeDirection: undefined }
-            : element
-        )
+      newState = newState.map((element) =>
+        "resizeDirection" in element
+          ? { ...element, resizeDirection: undefined }
+          : element
       );
     }
+    setState(newState);
   };
 
-  const selectAction = (action: MenuAction) => setAction(action);
+  const selectAction = (action: MenuAction) => {
+    setAction(action);
+  };
 
   const deleteAll = () => setState([]);
 
   const onDoubleClick = ({ clientX: x, clientY: y }: React.MouseEvent) => {
     const textInputCollision = hasTextInputCollision(state, { x, y });
+    setAction("select");
     if (!textInputCollision.ok) {
       setTextInput(createTextElement({ x, y }));
-      setState(state.map((element) => ({ ...element, selected: false })));
+      setState(unSelectAll(state));
       return;
     }
     setState(textInputCollision.newState);
@@ -225,6 +247,7 @@ export const useCanvas = (): UseCanvas => {
   return {
     canvasRef,
     textInput,
+    action,
     onChangeTextInput,
     startDrawing,
     draw,

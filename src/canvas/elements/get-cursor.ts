@@ -27,7 +27,7 @@ const resizeCursorDict: Record<ResizeDirection, ResizeCursor> = {
 interface GetCursorInput {
   mousePosition: Position;
   state: CanvasElement[];
-  action?: MenuAction;
+  action: MenuAction;
 }
 
 export const getCursor = ({
@@ -35,18 +35,15 @@ export const getCursor = ({
   state,
   action,
 }: GetCursorInput): Cursor => {
+  if (action !== "select") {
+    return "crosshair";
+  }
   const resizeCollision = hasResizeCollision(state, mousePosition);
   if (resizeCollision.ok) {
     return resizeCursorDict[resizeCollision.position];
   }
-
   if (hasMovingCollision(state, mousePosition).ok) {
     return "move";
   }
-
-  if (action !== undefined) {
-    return "crosshair";
-  }
-
   return "default";
 };

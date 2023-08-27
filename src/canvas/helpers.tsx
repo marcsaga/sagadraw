@@ -102,3 +102,7 @@ export function checkSelectedElements(
 
   return { updated, newState };
 }
+
+export function unSelectAll(state: CanvasElement[]): CanvasElement[] {
+  return state.map((element) => ({ ...element, selected: false }));
+}
