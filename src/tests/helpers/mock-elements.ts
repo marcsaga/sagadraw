@@ -1,4 +1,4 @@
-import type { Position, RectangleElement } from "~/canvas/types";
+import type { Position, RectangleElement, TextElement } from "~/canvas/types";
 
 interface RectangleConfig {
   x: number;
@@ -16,6 +16,24 @@ export function mockRectangle({
   selected,
 }: Partial<RectangleConfig>): RectangleElement {
   return { type: "rectangle", x, y, xSize, ySize, selected };
+}
+
+interface TextConfig {
+  x: number;
+  y: number;
+  text: string;
+  fontSize: number;
+  selected?: boolean;
+}
+
+export function mockText({
+  x = 100,
+  y = 100,
+  text = "text",
+  fontSize = 16,
+  selected,
+}: Partial<TextConfig>): TextElement {
+  return { type: "text", x, y, text, fontSize, selected, ySize: 30, xSize: 30 };
 }
 
 export function getEdgeCollisions({

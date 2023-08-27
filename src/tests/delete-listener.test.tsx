@@ -1,7 +1,8 @@
 import { fireEvent, render } from "@testing-library/react";
 import { Canvas } from "~/canvas/canvas";
 import { CanvasElementStorage } from "~/canvas/storage/canvas-element-storage";
-import { mockRectangle } from "./mockers/elements";
+import { mockRectangle } from "./helpers/mock-elements";
+import { FireEventsAPI } from "./helpers/fire-events-api";
 
 const selectedMockedRect = mockRectangle({ selected: true });
 const unselectedMockedRect = mockRectangle({ selected: false });
@@ -15,7 +16,7 @@ describe("delete listener", () => {
     CanvasElementStorage.set([selectedMockedRect]);
 
     const { container } = render(<Canvas />);
-    const canvas = container.querySelector("#canvas")!;
+    const canvas = FireEventsAPI.getCanvasElement(container);
 
     fireEvent.keyDown(canvas, { key: "Backspace" });
     expect(CanvasElementStorage.get()).toEqual([]);
@@ -25,7 +26,7 @@ describe("delete listener", () => {
     CanvasElementStorage.set([unselectedMockedRect]);
 
     const { container } = render(<Canvas />);
-    const canvas = container.querySelector("#canvas")!;
+    const canvas = FireEventsAPI.getCanvasElement(container);
 
     fireEvent.keyDown(canvas, { key: "Backspace" });
     expect(CanvasElementStorage.get()).toEqual([unselectedMockedRect]);
@@ -35,7 +36,7 @@ describe("delete listener", () => {
     CanvasElementStorage.set([selectedMockedRect, selectedMockedRect]);
 
     const { container } = render(<Canvas />);
-    const canvas = container.querySelector("#canvas")!;
+    const canvas = FireEventsAPI.getCanvasElement(container);
 
     fireEvent.keyDown(canvas, { key: "Backspace" });
     expect(CanvasElementStorage.get()).toEqual([]);
