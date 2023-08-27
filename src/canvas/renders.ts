@@ -123,7 +123,7 @@ export function getSelectedRect(
 
   let mode: ResizeMode = "multiple";
   if (selectedElements.length === 1) {
-    mode = selectedElements[0]!.type === "text" ? "text" : "single";
+    mode = selectedElements[0]!.type === "text" ? "none" : "single";
   }
 
   return {
@@ -178,15 +178,14 @@ export function renderCanvasElements(
   for (const [, element] of state.entries()) {
     switch (element.type) {
       case "rectangle":
-        renderRectanble(
-          context,
-          element,
-          element.selected ? "selected" : "drawed"
-        );
+        renderRectanble(context, element, "drawed");
         break;
       case "text":
         renderText(context, element);
         break;
+    }
+    if (element.selected) {
+      renderSelectedRect(context, element, "none");
     }
   }
 
@@ -204,13 +203,12 @@ export function renderText(
   context: CanvasRenderingContext2D,
   element: TextElement
 ) {
-  context.font = "16px sans-serif";
-  context.fillStyle = "black";
+  context.font = element.fontSize + "px sans-serif";
 
   const lines = element.text.split("\n");
-  let y = element.y;
   context.textBaseline = "top";
 
+  let y = element.y;
   for (const line of lines) {
     context.fillText(line, element.x, y);
     y += 24;

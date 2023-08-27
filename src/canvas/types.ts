@@ -38,4 +38,4 @@ export type ResizeDirection =
   | "left"
   | "right";
 
-export type ResizeMode = "single" | "multiple" | "text";
+export type ResizeMode = "single" | "multiple" | "none";

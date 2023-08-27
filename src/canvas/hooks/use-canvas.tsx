@@ -21,6 +21,7 @@ import {
   hasTextInputCollision,
 } from "../elements/collisions";
 import { useSyncLocalStorage } from "./use-sync-local-storage";
+import { createRectangleElement, createTextElement } from "../elements/create";
 
 interface UseCanvas {
   canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -77,14 +78,14 @@ export const useCanvas = (): UseCanvas => {
   }, [canvasRef, state, action]);
 
   const drawElement = (mousePosition: Position) => {
-    const position = { ...mousePosition, xSize: 0, ySize: 0 };
+    const rectangle = createRectangleElement(mousePosition);
     setIsDrawing(true);
     switch (action) {
       case "rectangle":
-        setState([...state, { ...position, type: "rectangle" }]);
+        setState([...state, rectangle]);
         break;
       default:
-        setSelectionElement(position);
+        setSelectionElement(rectangle);
     }
   };
 
@@ -136,16 +137,7 @@ export const useCanvas = (): UseCanvas => {
   const startDrawing = ({ clientX, clientY }: React.MouseEvent) => {
     if (textInput !== undefined) {
       if (textInput.text) {
-        setState([
-          ...state,
-          {
-            ...textInput,
-            text: textInput.text,
-            type: "text",
-            y: textInput.y,
-            selected: false,
-          },
-        ]);
+        setState([...state, { ...textInput, selected: false }]);
       }
       setTextInput(undefined);
       return;
@@ -202,15 +194,7 @@ export const useCanvas = (): UseCanvas => {
       y: clientY,
     });
     if (!textInputCollision.ok) {
-      setTextInput({
-        x: clientX,
-        y: clientY,
-        text: "",
-        xSize: 30,
-        ySize: 30,
-        type: "text",
-        fontSize: 16,
-      });
+      setTextInput(createTextElement({ x: clientX, y: clientY }));
       return;
     }
     setState(textInputCollision.newState);

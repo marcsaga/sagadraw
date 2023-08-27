@@ -26,6 +26,7 @@ export function Textarea({ textInput, onChangeTextInput }: TextareaProps) {
         ref={ref}
         autoFocus
         className="grid-area-1-1-2-2 grid resize-none overflow-hidden bg-transparent"
+        style={{ fontSize: textInput.fontSize + "px" }}
         onChange={({ target }) => {
           onChangeTextInput({
             ...textInput,

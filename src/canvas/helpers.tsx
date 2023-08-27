@@ -55,7 +55,7 @@ const TEXT_ELEMENT_RESIZE_POSITIONS = new Set<ResizeDirection>([]);
 
 const resizePositionsDictionary: Record<ResizeMode, Set<ResizeDirection>> = {
   single: SINGLE_ELEMENT_RESIZE_POSITIONS,
-  text: TEXT_ELEMENT_RESIZE_POSITIONS,
+  none: TEXT_ELEMENT_RESIZE_POSITIONS,
   multiple: MULTIPLE_ELEMENTS_RESIZE_POSITIONS,
 };
 
