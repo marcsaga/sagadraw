@@ -58,40 +58,38 @@ export function hasMovingCollision(
   mousePosition: Position
 ): { ok: true; newState: CanvasElement[] } | { ok: false } {
   const selectedRect = getSelectedRect(state);
-  if (!selectedRect) {
-    const collidedElements = state.filter((element) =>
-      hasCollided(expandRect(element, SHELL_MARGIN), mousePosition)
-    );
-    if (collidedElements.length === 0) {
-      return { ok: false };
-    }
-
-    const elementIndex = state.findIndex(
-      (element) =>
-        hasCollided(expandRect(element, SHELL_MARGIN), mousePosition) &&
-        element.xSize * element.ySize ===
-          Math.min(
-            ...collidedElements.map((element) => element.xSize * element.ySize)
-          )
-    );
-    if (elementIndex === -1) {
-      return { ok: false };
-    }
-
-    return {
-      ok: true,
-      newState: state.map((element, index) => ({
-        ...element,
-        selected: elementIndex === index,
-      })),
-    };
+  if (
+    selectedRect?.mode === "multiple" &&
+    hasCollided(expandRect(selectedRect.element, SHELL_MARGIN), mousePosition)
+  ) {
+    return { ok: true, newState: state };
+  }
+  const collidedElements = state.filter((element) =>
+    hasCollided(expandRect(element, SHELL_MARGIN), mousePosition)
+  );
+  if (collidedElements.length === 0) {
+    return { ok: false };
   }
 
-  const hasCollision = hasCollided(
-    expandRect(selectedRect.element, SHELL_MARGIN),
-    mousePosition
+  const elementIndex = state.findIndex(
+    (element) =>
+      hasCollided(expandRect(element, SHELL_MARGIN), mousePosition) &&
+      element.xSize * element.ySize ===
+        Math.min(
+          ...collidedElements.map((element) => element.xSize * element.ySize)
+        )
   );
-  return hasCollision ? { ok: true, newState: state } : { ok: false };
+  if (elementIndex === -1) {
+    return { ok: false };
+  }
+
+  return {
+    ok: true,
+    newState: state.map((element, index) => ({
+      ...element,
+      selected: elementIndex === index,
+    })),
+  };
 }
 
 export function hasTextInputCollision(

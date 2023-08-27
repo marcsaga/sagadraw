@@ -56,19 +56,21 @@ describe("text element", () => {
   });
 
   it("should be able to edit a text element inside a rectangle", () => {
-    const { container, getAllByRole } = render(<Canvas />);
-
     const mockedRect = mockRectangle({});
-    FireEventsAPI.createRectangle(container, mockedRect);
-
     const mockedText = mockText({
       x: mockedRect.x + mockedRect.xSize / 2,
       y: mockedRect.y + mockedRect.ySize / 2,
       text: "Hello World",
     });
-    FireEventsAPI.createText(container, mockedText, getAllByRole);
+    CanvasElementStorage.set([mockedRect, mockedText]);
+    const { container, getAllByRole } = render(<Canvas />);
 
-    const editedMockedText = { ...mockedText, text: "Bye bye world" };
+    const editedMockedText = {
+      ...mockedText,
+      text: "Bye bye world",
+      x: mockedText.x + mockedText.xSize / 2,
+      y: mockedText.y + mockedText.ySize / 2,
+    };
     FireEventsAPI.createText(container, editedMockedText, getAllByRole);
 
     const elements = CanvasElementStorage.get();
