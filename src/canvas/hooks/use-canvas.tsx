@@ -163,8 +163,8 @@ export const useCanvas = (): UseCanvas => {
     drawElement(mousePosition);
   };
 
-  const draw = ({ clientX, clientY }: React.MouseEvent) => {
-    const mousePosition = { x: clientX, y: clientY };
+  const draw = ({ clientX: x, clientY: y }: React.MouseEvent) => {
+    const mousePosition = { x, y };
     updateDrawedElement(mousePosition);
     updateMovingElement(mousePosition);
     updateResizingElement(mousePosition);
@@ -188,13 +188,10 @@ export const useCanvas = (): UseCanvas => {
 
   const deleteAll = () => setState([]);
 
-  const onDoubleClick = ({ clientX, clientY }: React.MouseEvent) => {
-    const textInputCollision = hasTextInputCollision(state, {
-      x: clientX,
-      y: clientY,
-    });
+  const onDoubleClick = ({ clientX: x, clientY: y }: React.MouseEvent) => {
+    const textInputCollision = hasTextInputCollision(state, { x, y });
     if (!textInputCollision.ok) {
-      setTextInput(createTextElement({ x: clientX, y: clientY }));
+      setTextInput(createTextElement({ x, y }));
       setState(state.map((element) => ({ ...element, selected: false })));
       return;
     }

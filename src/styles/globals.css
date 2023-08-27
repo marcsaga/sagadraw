@@ -5,7 +5,6 @@
 @layer components {
   .canvas-text-input {
     display: grid;
-    width: 10px;
     height: 25px;
   }
   .canvas-text-input::after {
