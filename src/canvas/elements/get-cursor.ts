@@ -1,10 +1,14 @@
 import type { MenuAction } from "~/components/actions-menu";
-import { getResizeRectangles } from "../helpers";
 import type { CanvasElement, Position, ResizeDirection } from "../types";
-import { getSelectedRect } from "../renders";
-import { hasCollided, hasMovingCollision } from "./collisions";
+import { hasMovingCollision, hasResizeCollision } from "./collisions";
 
-type ResizeCursor = "nesw-resize" | "nwse-resize" | "ns-resize" | "ew-resize";
+type ResizeCursor =
+  | "nesw-resize"
+  | "nwse-resize"
+  | "ns-resize"
+  | "ew-resize"
+  | "pointer";
+
 type Cursor = "default" | "move" | "pointer" | "crosshair" | ResizeCursor;
 
 const resizeCursorDict: Record<ResizeDirection, ResizeCursor> = {
@@ -16,23 +20,8 @@ const resizeCursorDict: Record<ResizeDirection, ResizeCursor> = {
   top: "ns-resize",
   left: "ew-resize",
   right: "ew-resize",
+  any: "pointer",
 };
-
-function getCursorFromResizeCollision(
-  elements: CanvasElement[],
-  mousePosition: Position
-): ResizeCursor | undefined {
-  const selectedRect = getSelectedRect(elements);
-  if (!selectedRect) return;
-
-  const collision = getResizeRectangles(
-    selectedRect.element,
-    selectedRect.mode
-  ).find(([, rectangle]) => {
-    return hasCollided(rectangle, mousePosition);
-  });
-  if (collision) return resizeCursorDict[collision[0]];
-}
 
 interface GetCursorInput {
   mousePosition: Position;
@@ -45,9 +34,9 @@ export const getCursor = ({
   state,
   action,
 }: GetCursorInput): Cursor => {
-  const resizeCursor = getCursorFromResizeCollision(state, mousePosition);
-  if (resizeCursor) {
-    return resizeCursor;
+  const resizeCollision = hasResizeCollision(state, mousePosition);
+  if (resizeCollision.ok) {
+    return resizeCursorDict[resizeCollision.position];
   }
 
   if (hasMovingCollision(state, mousePosition).ok) {

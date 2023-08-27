@@ -1,4 +1,4 @@
-export type MenuAction = "rectangle";
+export type MenuAction = "rectangle" | "line";
 
 interface ActionsMenuProps {
   selectAction: (action: MenuAction) => void;
@@ -7,6 +7,7 @@ interface ActionsMenuProps {
 
 const options: { label: string; action: MenuAction }[] = [
   { label: "Rectangle", action: "rectangle" },
+  { label: "Line", action: "line" },
 ];
 
 export function ActionsMenu({ selectAction, deleteAll }: ActionsMenuProps) {
@@ -15,7 +16,8 @@ export function ActionsMenu({ selectAction, deleteAll }: ActionsMenuProps) {
       {options.map(({ label, action }) => (
         <button
           key={action}
-          className="action-button rounded bg-black p-2 text-white"
+          id={action}
+          className="rounded bg-black p-2 text-white"
           onClick={() => selectAction(action)}
         >
           <span>{label}</span>

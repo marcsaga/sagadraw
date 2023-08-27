@@ -59,6 +59,9 @@ function resizeSingleElement(
         };
       case "right":
         return { ...rect, xSize: rect.xSize + (mousePosition.x - position.x) };
+      case "any": {
+        return rect;
+      }
       default:
         throw new Error("Invalid resize rectangle position");
     }
@@ -157,7 +160,7 @@ export function resize(
   const selectedRect = getSelectedRect(state);
   if (!selectedRect) return state;
 
-  return selectedRect.mode === "single"
-    ? resizeSingleElement(mousePosition, state, resizeState)
-    : resizeMultipleElements(mousePosition, state, resizeState);
+  return selectedRect.mode === "multiple"
+    ? resizeMultipleElements(mousePosition, state, resizeState)
+    : resizeSingleElement(mousePosition, state, resizeState);
 }

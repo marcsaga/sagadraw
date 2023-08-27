@@ -1,4 +1,4 @@
-export type ElementType = "rectangle" | "text";
+export type ElementType = "rectangle" | "text" | "line";
 
 export interface Position {
   x: number;
@@ -10,13 +10,17 @@ export interface BaseElement extends Position {
   ySize: number;
 }
 
-interface DrawedElement extends BaseElement {
+export interface DrawedElement extends BaseElement {
   type: ElementType;
   selected?: boolean;
 }
 
 export interface RectangleElement extends DrawedElement {
   type: "rectangle";
+}
+
+export interface LineElement extends DrawedElement {
+  type: "line";
 }
 
 export interface TextElement extends DrawedElement {
@@ -26,7 +30,7 @@ export interface TextElement extends DrawedElement {
   isEditing?: boolean;
 }
 
-export type CanvasElement = RectangleElement | TextElement;
+export type CanvasElement = RectangleElement | TextElement | LineElement;
 
 export type ResizeDirection =
   | "top-left"
@@ -36,6 +40,9 @@ export type ResizeDirection =
   | "top"
   | "bottom"
   | "left"
-  | "right";
+  | "right"
+  | "any";
 
-export type ResizeMode = "single" | "multiple" | "none";
+export type ResizableBox = "single" | "multiple" | "none";
+
+export type ResizeMode = ResizableBox | "line";

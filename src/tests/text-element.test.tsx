@@ -22,12 +22,16 @@ describe("text element", () => {
   });
 
   it("should be possible to edit a text element by doble clicking on top", () => {
+    const mockedText = mockText({ x: 100, y: 100, text: "Hello world" });
+    CanvasElementStorage.set([mockedText]);
     const { container, getAllByRole } = render(<Canvas />);
 
-    const mockedText = mockText({ x: 100, y: 100, text: "Hello world" });
-    FireEventsAPI.createText(container, mockedText, getAllByRole);
-
-    const editedMockedText = { ...mockedText, text: "Bye bye world" };
+    const editedMockedText = {
+      ...mockedText,
+      text: "Bye bye world",
+      x: mockedText.x + mockedText.xSize / 2,
+      y: mockedText.y + mockedText.ySize / 2,
+    };
     FireEventsAPI.createText(container, editedMockedText, getAllByRole);
 
     const elements = CanvasElementStorage.get();

@@ -1,4 +1,9 @@
-import type { Position, RectangleElement, TextElement } from "~/canvas/types";
+import type {
+  LineElement,
+  Position,
+  RectangleElement,
+  TextElement,
+} from "~/canvas/types";
 
 interface RectangleConfig {
   x: number;
@@ -48,4 +53,22 @@ export function getEdgeCollisions({
     { x, y: y + ySize / 2 },
     { x: x + xSize, y: y + ySize / 2 },
   ];
+}
+
+interface LineConfig {
+  x: number;
+  y: number;
+  xSize: number;
+  ySize: number;
+  selected?: boolean;
+}
+
+export function mockLine({
+  x = 100,
+  y = 100,
+  xSize = 200,
+  ySize = 200,
+  selected,
+}: Partial<LineConfig>): LineElement {
+  return { type: "line", x, y, xSize, ySize, selected };
 }

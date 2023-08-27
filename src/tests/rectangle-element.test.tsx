@@ -5,7 +5,7 @@ import { mockRectangle } from "./helpers/mock-elements";
 import { FireEventsAPI } from "./helpers/fire-events-api";
 
 describe("rectangle element", () => {
-  it("should draw a rectangle", () => {
+  it("should create a rectangle", () => {
     const { container } = render(<Canvas />);
 
     const mockedRect = mockRectangle({});

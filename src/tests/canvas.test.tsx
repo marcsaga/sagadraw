@@ -12,9 +12,4 @@ describe("Test", () => {
     const { container } = render(<Canvas />);
     expect(container.querySelector("#actions-menu")).toBeInTheDocument();
   });
-
-  it("should render an action button", () => {
-    const { container } = render(<Canvas />);
-    expect(container.querySelector(".action-button")).toBeInTheDocument();
-  });
 });

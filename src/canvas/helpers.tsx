@@ -51,15 +51,17 @@ const MULTIPLE_ELEMENTS_RESIZE_POSITIONS = new Set<ResizeDirection>([
   "bottom-right",
 ]);
 
-const TEXT_ELEMENT_RESIZE_POSITIONS = new Set<ResizeDirection>([]);
+const NONE_ELEMENT_RESIZE_POSITIONS = new Set<ResizeDirection>([]);
 
-const resizePositionsDictionary: Record<ResizeMode, Set<ResizeDirection>> = {
+type ResizableBox = "single" | "multiple" | "none";
+
+const resizePositionsDictionary: Record<ResizableBox, Set<ResizeDirection>> = {
   single: SINGLE_ELEMENT_RESIZE_POSITIONS,
-  none: TEXT_ELEMENT_RESIZE_POSITIONS,
+  none: NONE_ELEMENT_RESIZE_POSITIONS,
   multiple: MULTIPLE_ELEMENTS_RESIZE_POSITIONS,
 };
 
-export const getResizePositions = (mode: ResizeMode) => {
+export const getResizePositions = (mode: ResizableBox) => {
   return resizePositionsDictionary[mode];
 };
 
@@ -67,10 +69,14 @@ export function getResizeRectangles(
   element: BaseElement,
   mode: ResizeMode
 ): [ResizeDirection, BaseElement][] {
-  return Array.from(getResizePositions(mode)).map((position) => [
-    position,
-    getResizeRectangle(element, position),
-  ]);
+  if (mode !== "line") {
+    const positions = getResizePositions(mode);
+    return Array.from(positions).map((position) => [
+      position,
+      getResizeRectangle(element, position),
+    ]);
+  }
+  return [];
 }
 
 export function checkSelectedElements(

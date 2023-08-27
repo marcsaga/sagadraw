@@ -1,5 +1,10 @@
 import { fireEvent } from "@testing-library/react";
-import type { Position, RectangleElement, TextElement } from "~/canvas/types";
+import type {
+  LineElement,
+  Position,
+  RectangleElement,
+  TextElement,
+} from "~/canvas/types";
 
 export class FireEventsAPI {
   static getCanvasElement(container: Element) {
@@ -26,19 +31,23 @@ export class FireEventsAPI {
   }
 
   static createRectangle(container: Element, rectangle: RectangleElement) {
-    const rectangleButton = container.querySelector(".action-button")!;
+    const rectangleButton = container.querySelector("#rectangle")!;
     fireEvent.click(rectangleButton);
 
-    const canvas = FireEventsAPI.getCanvasElement(container);
-    fireEvent.mouseDown(canvas, {
-      clientX: rectangle.x,
-      clientY: rectangle.y,
+    FireEventsAPI.dragMouse(container, rectangle, {
+      x: rectangle.x + rectangle.xSize,
+      y: rectangle.y + rectangle.ySize,
     });
-    fireEvent.mouseMove(canvas, {
-      clientX: rectangle.x + rectangle.xSize,
-      clientY: rectangle.y + rectangle.ySize,
+  }
+
+  static createLine(container: Element, line: LineElement) {
+    const rectangleButton = container.querySelector("#line")!;
+    fireEvent.click(rectangleButton);
+
+    FireEventsAPI.dragMouse(container, line, {
+      x: line.x + line.xSize,
+      y: line.y + line.ySize,
     });
-    fireEvent.mouseUp(canvas);
   }
 
   static createText(

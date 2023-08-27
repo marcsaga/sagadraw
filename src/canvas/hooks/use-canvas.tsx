@@ -21,7 +21,11 @@ import {
   hasTextInputCollision,
 } from "../elements/collisions";
 import { useSyncLocalStorage } from "./use-sync-local-storage";
-import { createRectangleElement, createTextElement } from "../elements/create";
+import {
+  createLineElement,
+  createRectangleElement,
+  createTextElement,
+} from "../elements/create";
 
 interface UseCanvas {
   canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -78,14 +82,16 @@ export const useCanvas = (): UseCanvas => {
   }, [canvasRef, state, action]);
 
   const drawElement = (mousePosition: Position) => {
-    const rectangle = createRectangleElement(mousePosition);
     setIsDrawing(true);
     switch (action) {
       case "rectangle":
-        setState([...state, rectangle]);
+        setState([...state, createRectangleElement(mousePosition)]);
+        break;
+      case "line":
+        setState([...state, createLineElement(mousePosition)]);
         break;
       default:
-        setSelectionElement(rectangle);
+        setSelectionElement(createRectangleElement(mousePosition));
     }
   };
 
@@ -98,11 +104,11 @@ export const useCanvas = (): UseCanvas => {
         ySize: mousePosition.y - selectionElement.y,
       });
     } else if (state.length) {
-      const currentRect = state.splice(-1)[0]!;
+      const currentElement = state.splice(-1)[0]!;
       const newRect = {
-        ...currentRect,
-        xSize: mousePosition.x - currentRect.x,
-        ySize: mousePosition.y - currentRect.y,
+        ...currentElement,
+        xSize: mousePosition.x - currentElement.x,
+        ySize: mousePosition.y - currentElement.y,
       };
       setState([...state, newRect]);
     }
@@ -172,8 +178,11 @@ export const useCanvas = (): UseCanvas => {
 
   const endDrawing = () => {
     if (isDrawing && state.length) {
-      const std = standarizeElement(state.splice(-1)[0]!);
-      setState([...state, std]);
+      let lastElement = state.splice(-1)[0]!;
+      if (lastElement.type === "rectangle") {
+        lastElement = standarizeElement(lastElement);
+      }
+      setState([...state, lastElement]);
       setIsDrawing(false);
     }
     movingPostion.current = undefined;

@@ -7,10 +7,40 @@ import type {
   RectangleElement,
   ResizeDirection,
   TextElement,
+  LineElement,
+  ResizableBox,
+  ElementType,
 } from "./types";
 
 const RESIZE_RECT_SIZE = 8;
 export const SHELL_MARGIN = 8;
+
+export function getLineResizeRectagles(
+  element: LineElement
+): RectangleElement[] {
+  const margin = RESIZE_RECT_SIZE / 2;
+  const topX = element.x - margin;
+  const topY = element.y - margin;
+  const bottomX = element.x + element.xSize - margin;
+  const bottomY = element.y + element.ySize - margin;
+
+  return [
+    {
+      x: topX,
+      y: topY,
+      xSize: RESIZE_RECT_SIZE,
+      ySize: RESIZE_RECT_SIZE,
+      type: "rectangle",
+    },
+    {
+      x: bottomX,
+      y: bottomY,
+      xSize: RESIZE_RECT_SIZE,
+      ySize: RESIZE_RECT_SIZE,
+      type: "rectangle",
+    },
+  ];
+}
 
 export function getResizeRectangle(
   element: BaseElement,
@@ -74,7 +104,7 @@ export function getResizeRectangle(
 function renderSelectedRect(
   context: CanvasRenderingContext2D,
   element: BaseElement,
-  mode: ResizeMode
+  mode: ResizableBox
 ) {
   context.beginPath();
   context.roundRect(
@@ -98,6 +128,27 @@ function renderSelectedRect(
   }
 }
 
+function renderSelectedLine(
+  context: CanvasRenderingContext2D,
+  element: LineElement
+) {
+  context.beginPath();
+  context.moveTo(element.x, element.y);
+  context.lineTo(element.x + element.xSize, element.y + element.ySize);
+  context.strokeStyle = "rgba(0, 0, 200)";
+  context.stroke();
+
+  for (const rectangle of getLineResizeRectagles(element)) {
+    renderRectanble(context, rectangle, "resize-rect");
+  }
+}
+
+const singleSelectedMode: Record<ElementType, ResizeMode> = {
+  text: "none",
+  line: "line",
+  rectangle: "single",
+};
+
 export function getSelectedRect(
   state: CanvasElement[]
 ): { element: BaseElement; mode: ResizeMode } | undefined {
@@ -105,35 +156,40 @@ export function getSelectedRect(
   if (selectedElements.length === 0) {
     return;
   }
-  const minX = Math.min(...selectedElements.map((element) => element.x));
-  const minY = Math.min(...selectedElements.map((element) => element.y));
-  const maxSizeX = Math.max(
-    ...selectedElements.map((element) => element.x + element.xSize)
-  );
-  const maxSizeY = Math.max(
-    ...selectedElements.map((element) => element.y + element.ySize)
-  );
-
-  const maxSizeElement = selectedElements.find(
-    (element) => element.x + element.xSize === maxSizeX
-  )!;
-  const maxSizeYElement = selectedElements.find(
-    (element) => element.y + element.ySize === maxSizeY
-  )!;
-
-  let mode: ResizeMode = "multiple";
   if (selectedElements.length === 1) {
-    mode = selectedElements[0]!.type === "text" ? "none" : "single";
+    const element = selectedElements[0]!;
+    return { element: element, mode: singleSelectedMode[element.type] };
   }
+
+  const minX = Math.min(
+    ...selectedElements.map((element) =>
+      Math.min(element.x, element.x + element.xSize)
+    )
+  );
+  const minY = Math.min(
+    ...selectedElements.map((element) =>
+      Math.min(element.y, element.y + element.ySize)
+    )
+  );
+  const maxX = Math.max(
+    ...selectedElements.map((element) =>
+      Math.max(element.x, element.x + element.xSize)
+    )
+  );
+  const maxY = Math.max(
+    ...selectedElements.map((element) =>
+      Math.max(element.y, element.y + element.ySize)
+    )
+  );
 
   return {
     element: standarizeElement({
       x: minX,
       y: minY,
-      xSize: maxSizeElement.x - minX + maxSizeElement.xSize,
-      ySize: maxSizeYElement.y - minY + maxSizeYElement.ySize,
+      xSize: maxX - minX,
+      ySize: maxY - minY,
     }),
-    mode,
+    mode: "multiple",
   };
 }
 
@@ -175,6 +231,7 @@ export function renderCanvasElements(
   state: CanvasElement[],
   selectionElement?: BaseElement
 ) {
+  const selectedRect = getSelectedRect(state);
   for (const [, element] of state.entries()) {
     switch (element.type) {
       case "rectangle":
@@ -183,14 +240,20 @@ export function renderCanvasElements(
       case "text":
         renderText(context, element);
         break;
+      case "line":
+        renderLine(context, element);
+        break;
     }
     if (element.selected) {
-      renderSelectedRect(context, element, "none");
+      if (element.type === "line") {
+        renderSelectedLine(context, element);
+      } else if (selectedRect?.mode === "multiple") {
+        renderSelectedRect(context, element, "none");
+      }
     }
   }
 
-  const selectedRect = getSelectedRect(state);
-  if (selectedRect) {
+  if (selectedRect && selectedRect.mode !== "line") {
     renderSelectedRect(context, selectedRect.element, selectedRect.mode);
   }
 
@@ -213,4 +276,14 @@ export function renderText(
     context.fillText(line, element.x, y);
     y += 24;
   }
+}
+
+export function renderLine(
+  context: CanvasRenderingContext2D,
+  element: LineElement
+) {
+  context.beginPath();
+  context.moveTo(element.x, element.y);
+  context.lineTo(element.x + element.xSize, element.y + element.ySize);
+  context.stroke();
 }
