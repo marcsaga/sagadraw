@@ -113,12 +113,13 @@ function renderSelectedRect(
   element: BaseElement,
   mode: ResizableBox
 ) {
+  const rect = standarizeElement(element);
   context.beginPath();
   context.roundRect(
-    element.x - SHELL_MARGIN,
-    element.y - SHELL_MARGIN,
-    element.xSize + SHELL_MARGIN * 2,
-    element.ySize + SHELL_MARGIN * 2,
+    rect.x - SHELL_MARGIN,
+    rect.y - SHELL_MARGIN,
+    rect.xSize + SHELL_MARGIN * 2,
+    rect.ySize + SHELL_MARGIN * 2,
     4
   );
   context.strokeStyle = "rgba(0, 0, 200)";
@@ -127,7 +128,7 @@ function renderSelectedRect(
 
   const resizePositions = getResizePositions(mode);
   for (const position of resizePositions) {
-    renderRectanble(context, getResizeRectangle(element, position), "resize");
+    renderRectanble(context, getResizeRectangle(rect, position), "resize");
   }
 }
 

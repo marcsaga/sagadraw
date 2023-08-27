@@ -8,11 +8,11 @@ export function useShortcutsListener(
 ) {
   useEffect(() => {
     const listener = (event: KeyboardEvent) => {
-      event.preventDefault();
       if (event.key === "Backspace") {
         updateState(state.filter((element) => !element.selected));
       }
       if ((event.metaKey || event.ctrlKey) && event.key === "d") {
+        event.preventDefault();
         const selectedElements = state
           .filter((element) => element.selected)
           .map((element) => ({

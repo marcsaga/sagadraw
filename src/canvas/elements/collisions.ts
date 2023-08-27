@@ -7,7 +7,6 @@ import {
 import type {
   BaseElement,
   CanvasElement,
-  DrawedElement,
   LineElement,
   Position,
   ResizeDirection,
@@ -84,21 +83,16 @@ export function hasResizeCollision(
       selectedRect.element as LineElement
     ).find(([, rectangle]) => hasCollided(rectangle, mousePosition));
 
-    return resizeCollision
-      ? {
-          ok: true,
-          position: resizeCollision[0],
-          newState: state.map((element) => {
-            if (element.selected) {
-              return {
-                ...element,
-                resizeDirection: resizeCollision[0],
-              } as LineElement;
-            }
-            return element;
-          }),
-        }
-      : { ok: false };
+    if (!resizeCollision) {
+      return { ok: false };
+    }
+
+    const newState = state.map((element) =>
+      element.selected
+        ? { ...element, resizeDirection: resizeCollision[0] }
+        : element
+    );
+    return { ok: true, position: resizeCollision[0], newState };
   }
 
   const resizeCollision = getResizeRectangles(
@@ -134,22 +128,23 @@ export function hasMovingCollision(
     return { ok: true, newState: state };
   }
 
-  const collidedElements = state.filter((element) =>
-    hasCollided(expandElement(element), mousePosition)
-  );
+  const collidedElements = state
+    .map((element, stateIndex) => ({ ...element, stateIndex }))
+    .filter((element) => hasCollided(expandElement(element), mousePosition));
   if (collidedElements.length === 0) {
     return { ok: false };
   }
 
-  const elementIndex = state.findIndex(
+  const collidedElement = collidedElements.find(
     (element) =>
-      hasCollided(expandElement(element), mousePosition) &&
       element.xSize * element.ySize ===
         Math.min(
           ...collidedElements.map((element) => element.xSize * element.ySize)
-        )
+        ) &&
+      element.stateIndex ===
+        Math.max(...collidedElements.map((element) => element.stateIndex))
   );
-  if (elementIndex === -1) {
+  if (collidedElement === undefined) {
     return { ok: false };
   }
 
@@ -157,7 +152,7 @@ export function hasMovingCollision(
     ok: true,
     newState: state.map((element, index) => ({
       ...element,
-      selected: elementIndex === index,
+      selected: collidedElement.stateIndex === index,
     })),
   };
 }

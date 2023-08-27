@@ -232,7 +232,6 @@ export const useCanvas = (): UseCanvas => {
 
   const onDoubleClick = ({ clientX: x, clientY: y }: React.MouseEvent) => {
     const textInputCollision = hasTextInputCollision(state, { x, y });
-    setAction("select");
     if (!textInputCollision.ok) {
       setTextInput(createTextElement({ x, y }));
       setState(unSelectAll(state));
