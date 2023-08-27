@@ -195,6 +195,7 @@ export const useCanvas = (): UseCanvas => {
     });
     if (!textInputCollision.ok) {
       setTextInput(createTextElement({ x: clientX, y: clientY }));
+      setState(state.map((element) => ({ ...element, selected: false })));
       return;
     }
     setState(textInputCollision.newState);

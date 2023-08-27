@@ -104,8 +104,10 @@ export function hasTextInputCollision(
   if (selectedRect?.mode === "multiple") {
     return { ok: false };
   }
-  const elementIndex = state.findIndex((element) =>
-    hasCollided(expandRect(element, SHELL_MARGIN), mousePosition)
+  const elementIndex = state.findIndex(
+    (element) =>
+      element.type === "text" &&
+      hasCollided(expandRect(element, SHELL_MARGIN), mousePosition)
   );
   if (elementIndex === -1 || state[elementIndex]?.type !== "text") {
     return { ok: false };
@@ -113,6 +115,6 @@ export function hasTextInputCollision(
   return {
     ok: true,
     textElement: state[elementIndex] as TextElement,
-    newState: state.filter((element, index) => index !== elementIndex),
+    newState: state.filter((_element, index) => index !== elementIndex),
   };
 }

@@ -72,11 +72,27 @@ describe("text element", () => {
     FireEventsAPI.createText(container, editedMockedText, getAllByRole);
 
     const elements = CanvasElementStorage.get();
-    expect(elements).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ text: editedMockedText.text }),
-      ])
-    );
+    expect(elements).toEqual([
+      expect.objectContaining({ type: "rectangle" }),
+      expect.objectContaining({ text: editedMockedText.text }),
+    ]);
   });
 
+  it("should not select an element when doble clicking on it to add a text inside a rect", () => {
+    const { container } = render(<Canvas />);
+
+    const mockedRect = mockRectangle({});
+    FireEventsAPI.createRectangle(container, mockedRect);
+
+    FireEventsAPI.triggerDoubleClick(container, {
+      x: mockedRect.x + mockedRect.xSize / 2,
+      y: mockedRect.y + mockedRect.ySize / 2,
+    });
+
+    const elements = CanvasElementStorage.get()!;
+    const rectElement = elements.find(
+      (element) => element.type === "rectangle"
+    );
+    expect(rectElement?.selected).toBeFalsy();
+  });
 });
