@@ -156,6 +156,9 @@ export const useCanvas = (): UseCanvas => {
         position: mousePosition,
         direction: resizeCollision.position,
       };
+      if (resizeCollision.newState) {
+        setState(resizeCollision.newState);
+      }
       return;
     }
 
@@ -186,10 +189,19 @@ export const useCanvas = (): UseCanvas => {
       setIsDrawing(false);
     }
     movingPostion.current = undefined;
-    resizingPosition.current = undefined;
     setAction(undefined);
     if (selectionElement) {
       setSelectionElement(undefined);
+    }
+    if (resizingPosition.current) {
+      resizingPosition.current = undefined;
+      setState(
+        state.map((element) =>
+          "resizeDirection" in element
+            ? { ...element, resizeDirection: undefined }
+            : element
+        )
+      );
     }
   };
 

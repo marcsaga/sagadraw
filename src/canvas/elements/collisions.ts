@@ -73,15 +73,32 @@ export function hasCollided<T extends BaseElement>(
 export function hasResizeCollision(
   state: CanvasElement[],
   mousePosition: Position
-): { ok: true; position: ResizeDirection } | { ok: false } {
+):
+  | { ok: true; position: ResizeDirection; newState?: CanvasElement[] }
+  | { ok: false } {
   const selectedRect = getSelectedRect(state);
   if (!selectedRect) return { ok: false };
 
   if (selectedRect.mode === "line") {
     const resizeCollision = getLineResizeRectagles(
       selectedRect.element as LineElement
-    ).find((rectangle) => hasCollided(rectangle, mousePosition));
-    return resizeCollision ? { ok: true, position: "line" } : { ok: false };
+    ).find(([, rectangle]) => hasCollided(rectangle, mousePosition));
+
+    return resizeCollision
+      ? {
+          ok: true,
+          position: resizeCollision[0],
+          newState: state.map((element) => {
+            if (element.selected) {
+              return {
+                ...element,
+                resizeDirection: resizeCollision[0],
+              } as LineElement;
+            }
+            return element;
+          }),
+        }
+      : { ok: false };
   }
 
   const resizeCollision = getResizeRectangles(

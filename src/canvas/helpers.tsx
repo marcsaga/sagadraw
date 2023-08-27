@@ -94,13 +94,11 @@ export function checkSelectedElements(
       selectedRect.mode
     ).some(([, rectable]) => hasCollided(rectable, selectionElement));
   }
-  const newState = [...state];
-  for (const [index, rect] of newState.entries()) {
-    const rectCollided = hasCollided(selectionElement, rect);
-    updated =
-      updated || (rectCollided !== rect.selected && !resizeRectangleCollided);
-    newState[index]!.selected = rectCollided || resizeRectangleCollided;
-  }
+  const newState = state.map((element) => {
+    const rectCollided = hasCollided(selectionElement, element);
+    updated = updated || rectCollided !== element.selected;
+    return { ...element, selected: rectCollided || resizeRectangleCollided };
+  });
 
   return { updated, newState };
 }

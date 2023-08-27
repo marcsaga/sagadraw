@@ -21,6 +21,7 @@ export interface RectangleElement extends DrawedElement {
 
 export interface LineElement extends DrawedElement {
   type: "line";
+  resizeDirection?: ResizeLineDirection;
 }
 
 export interface TextElement extends DrawedElement {
@@ -32,7 +33,9 @@ export interface TextElement extends DrawedElement {
 
 export type CanvasElement = RectangleElement | TextElement | LineElement;
 
-export type ResizeDirection =
+export type ResizeLineDirection = "line-start" | "line-end";
+
+export type ResizeRectangleDirection =
   | "top-left"
   | "top-right"
   | "bottom-left"
@@ -40,8 +43,9 @@ export type ResizeDirection =
   | "top"
   | "bottom"
   | "left"
-  | "right"
-  | "line";
+  | "right";
+
+export type ResizeDirection = ResizeLineDirection | ResizeRectangleDirection;
 
 export type ResizableBox = "single" | "multiple" | "none";
 

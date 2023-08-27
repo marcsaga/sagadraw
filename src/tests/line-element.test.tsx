@@ -62,7 +62,7 @@ describe("line element", () => {
 
   const mockedLine = mockLine({ selected: true });
   const resizePositions = getLineResizeRectagles(mockedLine).map(
-    ({ x, y }) => ({ x, y })
+    ([, { x, y }]) => ({ x, y })
   );
   it.each(resizePositions)(
     "should be able to resize a line element by dragging the %p resize rectangle",

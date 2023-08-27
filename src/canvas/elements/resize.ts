@@ -60,21 +60,16 @@ function resizeSingleElement(
         };
       case "right":
         return { ...rect, xSize: rect.xSize + (mousePosition.x - position.x) };
-      case "line": {
-        const startLineDistance = pointToPointDistance(rect, mousePosition);
-        const endLineDistance = pointToPointDistance(
-          { x: rect.x + rect.xSize, y: rect.y + rect.ySize },
-          mousePosition
-        );
-        if (startLineDistance < endLineDistance) {
-          return {
-            ...rect,
-            x: rect.x + (mousePosition.x - position.x),
-            y: rect.y + (mousePosition.y - position.y),
-            xSize: rect.xSize + (position.x - mousePosition.x),
-            ySize: rect.ySize + (position.y - mousePosition.y),
-          };
-        }
+      case "line-start": {
+        return {
+          ...rect,
+          x: rect.x + (mousePosition.x - position.x),
+          y: rect.y + (mousePosition.y - position.y),
+          xSize: rect.xSize + (position.x - mousePosition.x),
+          ySize: rect.ySize + (position.y - mousePosition.y),
+        };
+      }
+      case "line-end": {
         return {
           ...rect,
           xSize: rect.xSize + (mousePosition.x - position.x),

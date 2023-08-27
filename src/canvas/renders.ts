@@ -10,6 +10,7 @@ import type {
   LineElement,
   ResizableBox,
   ElementType,
+  ResizeLineDirection,
 } from "./types";
 
 const RESIZE_RECT_SIZE = 8;
@@ -17,28 +18,32 @@ export const SHELL_MARGIN = 8;
 
 export function getLineResizeRectagles(
   element: LineElement
-): RectangleElement[] {
+): [ResizeLineDirection, RectangleElement][] {
   const margin = RESIZE_RECT_SIZE / 2;
-  const topX = element.x - margin;
-  const topY = element.y - margin;
-  const bottomX = element.x + element.xSize - margin;
-  const bottomY = element.y + element.ySize - margin;
 
+  const dx = element.xSize;
+  const dy = element.ySize;
+
+  const magnitude = Math.sqrt(dx * dx + dy * dy);
+
+  const ux = dx / magnitude;
+  const uy = dy / magnitude;
+
+  const topX = element.x - ux * margin - RESIZE_RECT_SIZE / 2;
+  const topY = element.y - uy * margin - RESIZE_RECT_SIZE / 2;
+  const bottomX =
+    element.x + element.xSize + ux * margin - RESIZE_RECT_SIZE / 2;
+  const bottomY =
+    element.y + element.ySize + uy * margin - RESIZE_RECT_SIZE / 2;
+
+  const rectangleBase = {
+    xSize: RESIZE_RECT_SIZE,
+    ySize: RESIZE_RECT_SIZE,
+    type: "rectangle" as const,
+  };
   return [
-    {
-      x: topX,
-      y: topY,
-      xSize: RESIZE_RECT_SIZE,
-      ySize: RESIZE_RECT_SIZE,
-      type: "rectangle",
-    },
-    {
-      x: bottomX,
-      y: bottomY,
-      xSize: RESIZE_RECT_SIZE,
-      ySize: RESIZE_RECT_SIZE,
-      type: "rectangle",
-    },
+    ["line-start", { x: topX, y: topY, ...rectangleBase }],
+    ["line-end", { x: bottomX, y: bottomY, ...rectangleBase }],
   ];
 }
 
@@ -140,8 +145,12 @@ function renderSelectedLine(
   context.stroke();
 
   if (opts?.resizable) {
-    for (const rectangle of getLineResizeRectagles(element)) {
-      renderRectanble(context, rectangle, "resize-rect");
+    for (const [direction, rectangle] of getLineResizeRectagles(element)) {
+      renderRectanble(
+        context,
+        rectangle,
+        element.resizeDirection === direction ? "selection" : "resize-rect"
+      );
     }
   }
 }
