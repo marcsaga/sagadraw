@@ -20,7 +20,7 @@ const resizeCursorDict: Record<ResizeDirection, ResizeCursor> = {
   top: "ns-resize",
   left: "ew-resize",
   right: "ew-resize",
-  any: "pointer",
+  line: "pointer",
 };
 
 interface GetCursorInput {

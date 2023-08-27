@@ -7,15 +7,20 @@ import {
 import type {
   BaseElement,
   CanvasElement,
+  DrawedElement,
   LineElement,
   Position,
   ResizeDirection,
   TextElement,
 } from "../types";
 
-const LINE_COLLISION_THESHOLD = 10;
+const LINE_COLLISION_THESHOLD = 2;
 
-function hasCollidedWithLine(line: LineElement, point: Position): boolean {
+export function pointToPointDistance(point1: Position, point2: Position) {
+  return Math.hypot(point1.x - point2.x, point1.y - point2.y);
+}
+
+function hasPointCollidedWithLine(line: LineElement, point: Position): boolean {
   const distance = pointToLineDistance(point, line);
   return Math.abs(distance) < LINE_COLLISION_THESHOLD;
 }
@@ -49,7 +54,7 @@ export function hasCollided<T extends BaseElement>(
   target: Position | BaseElement
 ) {
   if ("type" in wrapper && wrapper.type === "line") {
-    return hasCollidedWithLine(wrapper as LineElement, target);
+    return hasPointCollidedWithLine(wrapper as LineElement, target);
   }
   const stdWrapper = standarizeElement(wrapper);
   const stdTarget =
@@ -76,7 +81,7 @@ export function hasResizeCollision(
     const resizeCollision = getLineResizeRectagles(
       selectedRect.element as LineElement
     ).find((rectangle) => hasCollided(rectangle, mousePosition));
-    return resizeCollision ? { ok: true, position: "any" } : { ok: false };
+    return resizeCollision ? { ok: true, position: "line" } : { ok: false };
   }
 
   const resizeCollision = getResizeRectangles(
@@ -89,7 +94,8 @@ export function hasResizeCollision(
     : { ok: false };
 }
 
-function expandRect<T extends BaseElement>(rect: T, amount: number): T {
+function expandElement<T extends BaseElement>(rect: T): T {
+  const amount = "type" in rect && rect.type === "line" ? 0 : SHELL_MARGIN;
   return {
     ...rect,
     x: rect.x - amount,
@@ -106,13 +112,13 @@ export function hasMovingCollision(
   const selectedRect = getSelectedRect(state);
   if (
     selectedRect?.mode === "multiple" &&
-    hasCollided(expandRect(selectedRect.element, SHELL_MARGIN), mousePosition)
+    hasCollided(expandElement(selectedRect.element), mousePosition)
   ) {
     return { ok: true, newState: state };
   }
 
   const collidedElements = state.filter((element) =>
-    hasCollided(expandRect(element, SHELL_MARGIN), mousePosition)
+    hasCollided(expandElement(element), mousePosition)
   );
   if (collidedElements.length === 0) {
     return { ok: false };
@@ -120,7 +126,7 @@ export function hasMovingCollision(
 
   const elementIndex = state.findIndex(
     (element) =>
-      hasCollided(expandRect(element, SHELL_MARGIN), mousePosition) &&
+      hasCollided(expandElement(element), mousePosition) &&
       element.xSize * element.ySize ===
         Math.min(
           ...collidedElements.map((element) => element.xSize * element.ySize)
@@ -152,7 +158,7 @@ export function hasTextInputCollision(
   const elementIndex = state.findIndex(
     (element) =>
       element.type === "text" &&
-      hasCollided(expandRect(element, SHELL_MARGIN), mousePosition)
+      hasCollided(expandElement(element), mousePosition)
   );
   if (elementIndex === -1 || state[elementIndex]?.type !== "text") {
     return { ok: false };

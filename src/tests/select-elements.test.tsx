@@ -2,7 +2,11 @@ import { render } from "@testing-library/react";
 import { Canvas } from "~/canvas/canvas";
 import { getSelectedRect } from "~/canvas/renders";
 import { CanvasElementStorage } from "~/canvas/storage/canvas-element-storage";
-import { getEdgeCollisions, mockRectangle } from "./helpers/mock-elements";
+import {
+  getEdgeCollisions,
+  mockLine,
+  mockRectangle,
+} from "./helpers/mock-elements";
 import { FireEventsAPI } from "./helpers/fire-events-api";
 
 const mockedRect = mockRectangle({});
@@ -126,5 +130,25 @@ describe("select canvas elements", () => {
 
     const elements = CanvasElementStorage.get();
     expect(getSelectedRect(elements!)?.mode).toBe("multiple");
+  });
+
+  it("should be able to select a line and a rectangle sourrounding it", () => {
+    const mockedLine = mockLine({ x: 150, y: 150, xSize: 100, ySize: 100 });
+    const mockedRectagle = mockRectangle({
+      x: 100,
+      y: 100,
+      xSize: 300,
+      ySize: 300,
+    });
+    CanvasElementStorage.set([mockedRectagle, mockedLine]);
+    const { container } = render(<Canvas />);
+
+    FireEventsAPI.dragMouse(container, { x: 50, y: 50 }, { x: 450, y: 450 });
+
+    const elements = CanvasElementStorage.get();
+    expect(elements).toEqual([
+      expect.objectContaining({ ...mockedRectagle, selected: true }),
+      expect.objectContaining({ ...mockedLine, selected: true }),
+    ]);
   });
 });

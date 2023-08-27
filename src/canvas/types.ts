@@ -41,7 +41,7 @@ export type ResizeDirection =
   | "bottom"
   | "left"
   | "right"
-  | "any";
+  | "line";
 
 export type ResizableBox = "single" | "multiple" | "none";
 

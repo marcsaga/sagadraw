@@ -130,7 +130,8 @@ function renderSelectedRect(
 
 function renderSelectedLine(
   context: CanvasRenderingContext2D,
-  element: LineElement
+  element: LineElement,
+  opts?: { resizable?: boolean }
 ) {
   context.beginPath();
   context.moveTo(element.x, element.y);
@@ -138,8 +139,10 @@ function renderSelectedLine(
   context.strokeStyle = "rgba(0, 0, 200)";
   context.stroke();
 
-  for (const rectangle of getLineResizeRectagles(element)) {
-    renderRectanble(context, rectangle, "resize-rect");
+  if (opts?.resizable) {
+    for (const rectangle of getLineResizeRectagles(element)) {
+      renderRectanble(context, rectangle, "resize-rect");
+    }
   }
 }
 
@@ -246,7 +249,9 @@ export function renderCanvasElements(
     }
     if (element.selected) {
       if (element.type === "line") {
-        renderSelectedLine(context, element);
+        renderSelectedLine(context, element, {
+          resizable: selectedRect?.mode !== "multiple",
+        });
       } else if (selectedRect?.mode === "multiple") {
         renderSelectedRect(context, element, "none");
       }
