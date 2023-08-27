@@ -1,4 +1,4 @@
-type ElementType = "rectangle" | "selection";
+export type ElementType = "rectangle" | "text";
 
 export interface Position {
   x: number;
@@ -19,7 +19,14 @@ export interface RectangleElement extends DrawedElement {
   type: "rectangle";
 }
 
-export type CanvasElement = RectangleElement;
+export interface TextElement extends DrawedElement {
+  type: "text";
+  text: string;
+  fontSize: number;
+  isEditing?: boolean;
+}
+
+export type CanvasElement = RectangleElement | TextElement;
 
 export type ResizeDirection =
   | "top-left"
@@ -31,4 +38,4 @@ export type ResizeDirection =
   | "left"
   | "right";
 
-export type ResizeMode = "single" | "multiple";
+export type ResizeMode = "single" | "multiple" | "text";

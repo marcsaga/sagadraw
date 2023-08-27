@@ -6,6 +6,7 @@ import type {
   ResizeMode,
   RectangleElement,
   ResizeDirection,
+  TextElement,
 } from "./types";
 
 const RESIZE_RECT_SIZE = 8;
@@ -76,11 +77,12 @@ function renderSelectedRect(
   mode: ResizeMode
 ) {
   context.beginPath();
-  context.rect(
+  context.roundRect(
     element.x - SHELL_MARGIN,
     element.y - SHELL_MARGIN,
     element.xSize + SHELL_MARGIN * 2,
-    element.ySize + SHELL_MARGIN * 2
+    element.ySize + SHELL_MARGIN * 2,
+    4
   );
   context.strokeStyle = "rgba(0, 0, 200)";
   context.lineWidth = 1;
@@ -119,6 +121,11 @@ export function getSelectedRect(
     (element) => element.y + element.ySize === maxSizeY
   )!;
 
+  let mode: ResizeMode = "multiple";
+  if (selectedElements.length === 1) {
+    mode = selectedElements[0]!.type === "text" ? "text" : "single";
+  }
+
   return {
     element: standarizeElement({
       x: minX,
@@ -126,7 +133,7 @@ export function getSelectedRect(
       xSize: maxSizeElement.x - minX + maxSizeElement.xSize,
       ySize: maxSizeYElement.y - minY + maxSizeYElement.ySize,
     }),
-    mode: selectedElements.length === 1 ? "single" : "multiple",
+    mode,
   };
 }
 
@@ -177,6 +184,9 @@ export function renderCanvasElements(
           element.selected ? "selected" : "drawed"
         );
         break;
+      case "text":
+        renderText(context, element);
+        break;
     }
   }
 
@@ -187,5 +197,22 @@ export function renderCanvasElements(
 
   if (selectionElement) {
     renderRectanble(context, selectionElement, "selection");
+  }
+}
+
+export function renderText(
+  context: CanvasRenderingContext2D,
+  element: TextElement
+) {
+  context.font = "16px sans-serif";
+  context.fillStyle = "black";
+
+  const lines = element.text.split("\n");
+  let y = element.y;
+  context.textBaseline = "top";
+
+  for (const line of lines) {
+    context.fillText(line, element.x, y);
+    y += 24;
   }
 }

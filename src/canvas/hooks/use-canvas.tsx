@@ -5,17 +5,21 @@ import {
   standarizeElement,
 } from "../helpers";
 import { renderCanvasElements } from "../renders";
-import type { BaseElement, CanvasElement, Position } from "../types";
+import type {
+  BaseElement,
+  CanvasElement,
+  Position,
+  TextElement,
+} from "../types";
 import type { MenuAction } from "~/components/actions-menu";
 import { useDeleteListener } from "./use-delete-listener";
 import { type ResizeState, resize } from "../elements/resize";
 import { getCursor } from "../elements/get-cursor";
 import {
-  hasCollidedWithEdges,
   hasMovingCollision,
   hasResizeCollision,
+  hasTextInputCollision,
 } from "../elements/collisions";
-import { CanvasElementStorage } from "../storage/canvas-element-storage";
 import { useSyncLocalStorage } from "./use-sync-local-storage";
 
 interface UseCanvas {
@@ -25,6 +29,9 @@ interface UseCanvas {
   endDrawing: () => void;
   selectAction: (action: MenuAction) => void;
   deleteAll: () => void;
+  onDoubleClick: (event: React.MouseEvent) => void;
+  textInput?: TextElement;
+  onChangeTextInput: (textInput: TextElement) => void;
 }
 
 export const useCanvas = (): UseCanvas => {
@@ -35,6 +42,7 @@ export const useCanvas = (): UseCanvas => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [selectionElement, setSelectionElement] = useState<BaseElement>();
   const [state, setState] = useState<CanvasElement[]>([]);
+  const [textInput, setTextInput] = useState<TextElement | undefined>();
 
   useDeleteListener(setState);
   const { syncLocalStorage } = useSyncLocalStorage(setState);
@@ -49,7 +57,7 @@ export const useCanvas = (): UseCanvas => {
       setState(collisionResponse.newState);
     }
     syncLocalStorage(state);
-  }, [canvasRef, state, selectionElement, syncLocalStorage]);
+  }, [canvasRef, state, selectionElement, syncLocalStorage, textInput]);
 
   useEffect(() => {
     function updateCursor(event: MouseEvent) {
@@ -126,6 +134,23 @@ export const useCanvas = (): UseCanvas => {
   };
 
   const startDrawing = ({ clientX, clientY }: React.MouseEvent) => {
+    if (textInput !== undefined) {
+      if (textInput.text) {
+        setState([
+          ...state,
+          {
+            ...textInput,
+            text: textInput.text,
+            type: "text",
+            y: textInput.y,
+            selected: false,
+          },
+        ]);
+      }
+      setTextInput(undefined);
+      return;
+    }
+
     const mousePosition = { x: clientX, y: clientY };
     const resizeCollision = hasResizeCollision(state, mousePosition);
     if (resizeCollision.ok) {
@@ -139,13 +164,7 @@ export const useCanvas = (): UseCanvas => {
     const movingCollsion = hasMovingCollision(state, mousePosition);
     if (movingCollsion.ok) {
       movingPostion.current = mousePosition;
-      return;
-    }
-
-    const edgesCollision = hasCollidedWithEdges(state, mousePosition);
-    if (edgesCollision.ok) {
-      setState(edgesCollision.newState);
-      movingPostion.current = mousePosition;
+      setState(movingCollsion.newState);
       return;
     }
 
@@ -173,13 +192,42 @@ export const useCanvas = (): UseCanvas => {
     }
   };
 
-  const selectAction = (action: MenuAction) => {
-    setAction(action);
+  const selectAction = (action: MenuAction) => setAction(action);
+
+  const deleteAll = () => setState([]);
+
+  const onDoubleClick = ({ clientX, clientY }: React.MouseEvent) => {
+    const textInputCollision = hasTextInputCollision(state, {
+      x: clientX,
+      y: clientY,
+    });
+    if (!textInputCollision.ok) {
+      setTextInput({
+        x: clientX,
+        y: clientY,
+        text: "",
+        xSize: 30,
+        ySize: 30,
+        type: "text",
+        fontSize: 16,
+      });
+      return;
+    }
+    setState(textInputCollision.newState);
+    setTextInput(textInputCollision.textElement);
   };
 
-  const deleteAll = () => {
-    setState([]);
-  };
+  const onChangeTextInput = (element: TextElement) => setTextInput(element);
 
-  return { canvasRef, startDrawing, draw, endDrawing, selectAction, deleteAll };
+  return {
+    canvasRef,
+    textInput,
+    onChangeTextInput,
+    startDrawing,
+    draw,
+    endDrawing,
+    selectAction,
+    deleteAll,
+    onDoubleClick,
+  };
 };

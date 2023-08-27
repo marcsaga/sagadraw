@@ -51,10 +51,17 @@ const MULTIPLE_ELEMENTS_RESIZE_POSITIONS = new Set<ResizeDirection>([
   "bottom-right",
 ]);
 
-export const getResizePositions = (mode: ResizeMode) =>
-  mode === "single"
-    ? SINGLE_ELEMENT_RESIZE_POSITIONS
-    : MULTIPLE_ELEMENTS_RESIZE_POSITIONS;
+const TEXT_ELEMENT_RESIZE_POSITIONS = new Set<ResizeDirection>([]);
+
+const resizePositionsDictionary: Record<ResizeMode, Set<ResizeDirection>> = {
+  single: SINGLE_ELEMENT_RESIZE_POSITIONS,
+  text: TEXT_ELEMENT_RESIZE_POSITIONS,
+  multiple: MULTIPLE_ELEMENTS_RESIZE_POSITIONS,
+};
+
+export const getResizePositions = (mode: ResizeMode) => {
+  return resizePositionsDictionary[mode];
+};
 
 export function getResizeRectangles(
   element: BaseElement,

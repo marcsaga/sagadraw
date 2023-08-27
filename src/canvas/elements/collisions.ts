@@ -5,6 +5,7 @@ import type {
   CanvasElement,
   Position,
   ResizeDirection,
+  TextElement,
 } from "../types";
 
 export function hasCollided(
@@ -55,45 +56,63 @@ function expandRect(rect: BaseElement, amount: number): BaseElement {
 export function hasMovingCollision(
   state: CanvasElement[],
   mousePosition: Position
-): { ok: boolean } {
-  const selectedRect = getSelectedRect(state);
-  if (!selectedRect) return { ok: false };
-  return {
-    ok: hasCollided(
-      expandRect(selectedRect.element, SHELL_MARGIN),
-      mousePosition
-    ),
-  };
-}
-
-const EDGE_COLLISION_MARGIN = 5;
-
-export function hasCollidedWithEdges(
-  state: CanvasElement[],
-  mousePosition: Position
 ): { ok: true; newState: CanvasElement[] } | { ok: false } {
-  const selectedIndex = state.findIndex((element) => {
-    return (
-      (mousePosition.x > element.x - EDGE_COLLISION_MARGIN &&
-        mousePosition.x < element.x + EDGE_COLLISION_MARGIN) ||
-      (mousePosition.y > element.y - EDGE_COLLISION_MARGIN &&
-        mousePosition.y < element.y + EDGE_COLLISION_MARGIN) ||
-      (mousePosition.x > element.x + element.xSize - EDGE_COLLISION_MARGIN &&
-        mousePosition.x < element.x + element.xSize + EDGE_COLLISION_MARGIN) ||
-      (mousePosition.y > element.y + element.ySize - EDGE_COLLISION_MARGIN &&
-        mousePosition.y < element.y + element.ySize + EDGE_COLLISION_MARGIN)
+  const selectedRect = getSelectedRect(state);
+  if (!selectedRect) {
+    const collidedElements = state.filter((element) =>
+      hasCollided(expandRect(element, SHELL_MARGIN), mousePosition)
     );
-  });
+    if (collidedElements.length === 0) {
+      return { ok: false };
+    }
 
-  if (selectedIndex === -1) {
-    return { ok: false };
+    const elementIndex = state.findIndex(
+      (element) =>
+        hasCollided(expandRect(element, SHELL_MARGIN), mousePosition) &&
+        element.xSize * element.ySize ===
+          Math.min(
+            ...collidedElements.map((element) => element.xSize * element.ySize)
+          )
+    );
+    if (elementIndex === -1) {
+      return { ok: false };
+    }
+
+    return {
+      ok: true,
+      newState: state.map((element, index) => ({
+        ...element,
+        selected: elementIndex === index,
+      })),
+    };
   }
 
+  const hasCollision = hasCollided(
+    expandRect(selectedRect.element, SHELL_MARGIN),
+    mousePosition
+  );
+  return hasCollision ? { ok: true, newState: state } : { ok: false };
+}
+
+export function hasTextInputCollision(
+  state: CanvasElement[],
+  mousePosition: Position
+):
+  | { ok: true; newState: CanvasElement[]; textElement: TextElement }
+  | { ok: false } {
+  const selectedRect = getSelectedRect(state);
+  if (selectedRect?.mode === "multiple") {
+    return { ok: false };
+  }
+  const elementIndex = state.findIndex((element) =>
+    hasCollided(expandRect(element, SHELL_MARGIN), mousePosition)
+  );
+  if (elementIndex === -1 || state[elementIndex]?.type !== "text") {
+    return { ok: false };
+  }
   return {
     ok: true,
-    newState: state.map((element, index) => ({
-      ...element,
-      selected: selectedIndex === index,
-    })),
+    textElement: state[elementIndex] as TextElement,
+    newState: state.filter((element, index) => index !== elementIndex),
   };
 }

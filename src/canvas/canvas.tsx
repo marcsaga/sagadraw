@@ -1,9 +1,19 @@
 import { ActionsMenu } from "~/components/actions-menu";
 import { useCanvas } from "./hooks/use-canvas";
+import { Textarea } from "~/components/textarea";
 
 export const Canvas = () => {
-  const { canvasRef, startDrawing, draw, endDrawing, selectAction, deleteAll } =
-    useCanvas();
+  const {
+    canvasRef,
+    textInput,
+    onChangeTextInput,
+    startDrawing,
+    draw,
+    endDrawing,
+    selectAction,
+    deleteAll,
+    onDoubleClick,
+  } = useCanvas();
 
   return (
     <div>
@@ -13,9 +23,12 @@ export const Canvas = () => {
         onMouseDown={startDrawing}
         onMouseMove={draw}
         onMouseUp={endDrawing}
-        title="interactive_canvas"
+        onDoubleClick={onDoubleClick}
       ></canvas>
       <ActionsMenu selectAction={selectAction} deleteAll={deleteAll} />
+      {textInput && (
+        <Textarea textInput={textInput} onChangeTextInput={onChangeTextInput} />
+      )}
     </div>
   );
 };

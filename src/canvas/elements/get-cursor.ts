@@ -2,11 +2,7 @@ import type { MenuAction } from "~/components/actions-menu";
 import { getResizeRectangles } from "../helpers";
 import type { CanvasElement, Position, ResizeDirection } from "../types";
 import { getSelectedRect } from "../renders";
-import {
-  hasCollided,
-  hasCollidedWithEdges,
-  hasMovingCollision,
-} from "./collisions";
+import { hasCollided, hasMovingCollision } from "./collisions";
 
 type ResizeCursor = "nesw-resize" | "nwse-resize" | "ns-resize" | "ew-resize";
 type Cursor = "default" | "move" | "pointer" | "crosshair" | ResizeCursor;
@@ -54,10 +50,7 @@ export const getCursor = ({
     return resizeCursor;
   }
 
-  if (
-    hasMovingCollision(state, mousePosition).ok ||
-    hasCollidedWithEdges(state, mousePosition).ok
-  ) {
+  if (hasMovingCollision(state, mousePosition).ok) {
     return "move";
   }
 
