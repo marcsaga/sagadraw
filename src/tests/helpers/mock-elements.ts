@@ -5,30 +5,14 @@ import type {
   TextElement,
 } from "~/canvas/types";
 
-interface RectangleConfig {
-  x: number;
-  y: number;
-  xSize: number;
-  ySize: number;
-  selected?: boolean;
-}
-
 export function mockRectangle({
   x = 100,
   y = 100,
   xSize = 200,
   ySize = 200,
   selected,
-}: Partial<RectangleConfig>): RectangleElement {
+}: Partial<Omit<RectangleElement, "type">>): RectangleElement {
   return { type: "rectangle", x, y, xSize, ySize, selected };
-}
-
-interface TextConfig {
-  x: number;
-  y: number;
-  text: string;
-  fontSize: number;
-  selected?: boolean;
 }
 
 export function mockText({
@@ -37,8 +21,18 @@ export function mockText({
   text = "text",
   fontSize = 16,
   selected,
-}: Partial<TextConfig>): TextElement {
+}: Partial<Omit<TextElement, "type">>): TextElement {
   return { type: "text", x, y, text, fontSize, selected, ySize: 30, xSize: 30 };
+}
+
+export function mockLine({
+  x = 100,
+  y = 100,
+  xSize = 200,
+  ySize = 200,
+  selected,
+}: Partial<Omit<LineElement, "type">>): LineElement {
+  return { type: "line", x, y, xSize, ySize, selected };
 }
 
 export function getEdgeCollisions({
@@ -53,22 +47,4 @@ export function getEdgeCollisions({
     { x, y: y + ySize / 2 },
     { x: x + xSize, y: y + ySize / 2 },
   ];
-}
-
-interface LineConfig {
-  x: number;
-  y: number;
-  xSize: number;
-  ySize: number;
-  selected?: boolean;
-}
-
-export function mockLine({
-  x = 100,
-  y = 100,
-  xSize = 200,
-  ySize = 200,
-  selected,
-}: Partial<LineConfig>): LineElement {
-  return { type: "line", x, y, xSize, ySize, selected };
 }
