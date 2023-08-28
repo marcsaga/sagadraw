@@ -73,7 +73,7 @@ export function hasResizeCollision(
   state: CanvasElement[],
   mousePosition: Position
 ):
-  | { ok: true; position: ResizeDirection; newState?: CanvasElement[] }
+  | { ok: true; direction: ResizeDirection; newState?: CanvasElement[] }
   | { ok: false } {
   const selectedRect = getSelectedRect(state);
   if (!selectedRect) return { ok: false };
@@ -82,7 +82,6 @@ export function hasResizeCollision(
     const resizeCollision = getLineResizeRectagles(
       selectedRect.element as LineElement
     ).find(([, rectangle]) => hasCollided(rectangle, mousePosition));
-
     if (!resizeCollision) {
       return { ok: false };
     }
@@ -92,7 +91,7 @@ export function hasResizeCollision(
         ? { ...element, resizeDirection: resizeCollision[0] }
         : element
     );
-    return { ok: true, position: resizeCollision[0], newState };
+    return { ok: true, direction: resizeCollision[0], newState };
   }
 
   const resizeCollision = getResizeRectangles(
@@ -101,7 +100,7 @@ export function hasResizeCollision(
   ).find(([, rectangle]) => hasCollided(rectangle, mousePosition));
 
   return resizeCollision
-    ? { ok: true, position: resizeCollision[0] }
+    ? { ok: true, direction: resizeCollision[0] }
     : { ok: false };
 }
 
@@ -135,15 +134,12 @@ export function hasMovingCollision(
     return { ok: false };
   }
 
-  const collidedElement = collidedElements.find(
-    (element) =>
-      element.xSize * element.ySize ===
-        Math.min(
-          ...collidedElements.map((element) => element.xSize * element.ySize)
-        ) &&
-      element.stateIndex ===
-        Math.max(...collidedElements.map((element) => element.stateIndex))
+  const minSizeCollided = Math.min(
+    ...collidedElements.map((element) => element.xSize * element.ySize)
   );
+  const collidedElement = collidedElements
+    .reverse()
+    .find((element) => element.xSize * element.ySize === minSizeCollided);
   if (collidedElement === undefined) {
     return { ok: false };
   }

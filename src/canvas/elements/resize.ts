@@ -5,7 +5,6 @@ import type {
   ResizeDirection,
   BaseElement,
 } from "../types";
-import { pointToPointDistance } from "./collisions";
 
 function resizeSingleElement(
   mousePosition: Position,
@@ -177,4 +176,15 @@ export function resize(
   return selectedRect.mode === "multiple"
     ? resizeMultipleElements(mousePosition, state, resizeState)
     : resizeSingleElement(mousePosition, state, resizeState);
+}
+
+export function resizeDrawingRectangle<T extends BaseElement>(
+  element: T,
+  mousePosition: Position
+): T {
+  return {
+    ...element,
+    xSize: mousePosition.x - element.x,
+    ySize: mousePosition.y - element.y,
+  };
 }

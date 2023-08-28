@@ -14,7 +14,7 @@ import type {
 } from "./types";
 
 const RESIZE_RECT_SIZE = 8;
-export const SHELL_MARGIN = 8;
+export const SHELL_MARGIN = 6;
 
 export function getLineResizeRectagles(
   element: LineElement
@@ -55,13 +55,15 @@ export function getResizeRectangle(
 ): RectangleElement {
   let position: Position;
 
-  const margin = RESIZE_RECT_SIZE / 2;
-  const topY = element.y - SHELL_MARGIN - margin;
-  const bottomY = element.y + element.ySize + margin;
-  const leftX = element.x - SHELL_MARGIN - margin;
-  const rightX = element.x + element.xSize + margin;
-  const middleX = element.x + element.xSize / 2 - margin;
-  const middleY = element.y + element.ySize / 2 - margin;
+  const halfMargin = RESIZE_RECT_SIZE / 2;
+  const quarterMargin = RESIZE_RECT_SIZE / 4;
+
+  const topY = element.y - SHELL_MARGIN - halfMargin;
+  const bottomY = element.y + element.ySize + quarterMargin;
+  const leftX = element.x - SHELL_MARGIN - halfMargin;
+  const rightX = element.x + element.xSize + quarterMargin;
+  const middleX = element.x + element.xSize / 2 - halfMargin;
+  const middleY = element.y + element.ySize / 2 - halfMargin;
 
   switch (resizePosition) {
     case "top-left": {
@@ -210,7 +212,7 @@ function renderRectanble(
   variant: "drawed" | "selected" | "selection" | "resize" | "resize-select"
 ) {
   context.beginPath();
-  context.roundRect(rect.x, rect.y, rect.xSize, rect.ySize, 16);
+  context.roundRect(rect.x, rect.y, rect.xSize, rect.ySize, 8);
   context.lineCap = "round";
   switch (variant) {
     case "drawed":

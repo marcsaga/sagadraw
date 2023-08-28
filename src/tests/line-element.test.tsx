@@ -21,6 +21,15 @@ describe("line element", () => {
     expect(elements).toEqual([mockedLine]);
   });
 
+  it("should be able to create 30 line elements", () => {
+    const { container } = render(<Canvas />);
+    for (let i = 0; i < 15; i++) {
+      const mockedLine = mockLine({ x: i * 10, y: i * 10 });
+      FireEventsAPI.createLine(container, mockedLine);
+    }
+    expect(CanvasElementStorage.get()).toHaveLength(15);
+  });
+
   it("should be able to select a line element", () => {
     const mockedLine = mockLine({ selected: false });
     CanvasElementStorage.set([mockedLine]);

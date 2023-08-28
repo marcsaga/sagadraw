@@ -106,3 +106,15 @@ export function checkSelectedElements(
 export function unSelectAll(state: CanvasElement[]): CanvasElement[] {
   return state.map((element) => ({ ...element, selected: false }));
 }
+
+export function resetAllResizeDirections(state: CanvasElement[]) {
+  return state.map((element) =>
+    "resizeDirection" in element
+      ? { ...element, resizeDirection: undefined }
+      : element
+  );
+}
+
+export function hasMinimumSize(element: BaseElement): boolean {
+  return Math.abs(element.xSize) > 2 || Math.abs(element.ySize) > 2;
+}

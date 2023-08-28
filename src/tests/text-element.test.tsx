@@ -21,6 +21,17 @@ describe("text element", () => {
     ]);
   });
 
+  it("should be able to create 30 text elements", () => {
+    const { container, getAllByRole } = render(<Canvas />);
+
+    for (let i = 0; i < 15; i++) {
+      const mockedText = mockText({ x: i * 10, y: i * 10, text: `hi ${i}` });
+      FireEventsAPI.createText(container, mockedText, getAllByRole);
+    }
+
+    expect(CanvasElementStorage.get()).toHaveLength(15);
+  });
+
   it("should be possible to edit a text element by doble clicking on top", () => {
     const mockedText = mockText({ x: 100, y: 100, text: "Hello world" });
     CanvasElementStorage.set([mockedText]);
