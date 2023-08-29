@@ -1,4 +1,6 @@
 import "@testing-library/jest-dom";
+
+// RoundRect mock
 CanvasRenderingContext2D.prototype.roundRect = function (
   x: number,
   y: number,
@@ -16,30 +18,22 @@ CanvasRenderingContext2D.prototype.roundRect = function (
   this.closePath();
 };
 
-const localStorageMock = (function () {
-  let store: Record<string, string> = {};
+// Clipboard mock
 
-  return {
-    getItem(key: string) {
-      return store[key];
-    },
+let copiedText = "";
 
-    setItem(key: string, value: string) {
-      store[key] = value;
-    },
+const mockedWriteText = jest.fn(
+  async (text: string) =>
+    await new Promise<void>((resolve) => {
+      copiedText = text;
+      resolve();
+    })
+);
 
-    clear() {
-      store = {};
-    },
+const mockedReadText = jest.fn(
+  async () => await new Promise<string>((resolve) => resolve(copiedText))
+);
 
-    removeItem(key: string) {
-      delete store[key];
-    },
-
-    getAll() {
-      return store;
-    },
-  };
-})();
-
-Object.defineProperty(window, "localStorage", { value: localStorageMock });
+Object.assign(navigator, {
+  clipboard: { writeText: mockedWriteText, readText: mockedReadText },
+});

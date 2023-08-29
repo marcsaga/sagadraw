@@ -83,7 +83,10 @@ function resizeSingleElement(
   return newState;
 }
 
-function getRelativePosition(container: BaseElement, element: BaseElement) {
+export function getRelativePosition(
+  container: BaseElement,
+  element: BaseElement
+) {
   return { x: element.x - container.x, y: element.y - container.y };
 }
 
