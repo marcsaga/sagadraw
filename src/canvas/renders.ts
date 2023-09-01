@@ -18,7 +18,7 @@ export const SHELL_MARGIN = 6;
 
 export function getLineResizeRectagles(
   element: LineElement
-): [ResizeLineDirection, RectangleElement][] {
+): [ResizeLineDirection, Omit<RectangleElement, "id">][] {
   const margin = RESIZE_RECT_SIZE / 2;
   const topX = element.x - margin;
   const topY = element.y - margin;
@@ -52,7 +52,7 @@ export function getLineResizeRectagles(
 export function getResizeRectangle(
   element: BaseElement,
   resizePosition: ResizeDirection
-): RectangleElement {
+): Omit<RectangleElement, "id"> {
   let position: Position;
 
   const halfMargin = RESIZE_RECT_SIZE / 2;

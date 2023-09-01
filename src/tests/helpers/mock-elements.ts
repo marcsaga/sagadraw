@@ -1,3 +1,4 @@
+import { generateID } from "~/canvas/elements/create";
 import type {
   LineElement,
   Position,
@@ -12,7 +13,7 @@ export function mockRectangle({
   ySize = 200,
   selected,
 }: Partial<Omit<RectangleElement, "type">>): RectangleElement {
-  return { type: "rectangle", x, y, xSize, ySize, selected };
+  return { id: generateID(), type: "rectangle", x, y, xSize, ySize, selected };
 }
 
 export function mockText({
@@ -22,7 +23,17 @@ export function mockText({
   fontSize = 16,
   selected,
 }: Partial<Omit<TextElement, "type">>): TextElement {
-  return { type: "text", x, y, text, fontSize, selected, ySize: 30, xSize: 30 };
+  return {
+    id: generateID(),
+    type: "text",
+    x,
+    y,
+    text,
+    fontSize,
+    selected,
+    ySize: 30,
+    xSize: 30,
+  };
 }
 
 export function mockLine({
@@ -32,7 +43,7 @@ export function mockLine({
   ySize = 200,
   selected,
 }: Partial<Omit<LineElement, "type">>): LineElement {
-  return { type: "line", x, y, xSize, ySize, selected };
+  return { id: generateID(), type: "line", x, y, xSize, ySize, selected };
 }
 
 export function getEdgeCollisions({

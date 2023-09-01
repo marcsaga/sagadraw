@@ -52,7 +52,7 @@ export function hasCollided<T extends BaseElement>(
   wrapper: T,
   target: Position | BaseElement
 ) {
-  if ("type" in wrapper && wrapper.type === "line") {
+  if ("type" in wrapper && "id" in wrapper && wrapper.type === "line") {
     return hasPointCollidedWithLine(wrapper as LineElement, target);
   }
   const stdWrapper = standarizeElement(wrapper);
