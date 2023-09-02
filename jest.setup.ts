@@ -37,3 +37,7 @@ const mockedReadText = jest.fn(
 Object.assign(navigator, {
   clipboard: { writeText: mockedWriteText, readText: mockedReadText },
 });
+
+jest.mock("nanoid", () => ({
+  nanoid: () => "mocked-id",
+}));
