@@ -16,11 +16,19 @@ export function TextEditor({ textInput, onChangeTextInput }: TextareaProps) {
     if (editableDiv.current) {
       editableDiv.current.focus();
       editableDiv.current.innerText = textInput.text;
+
+      if (textInput.text) {
+        const range = document.createRange();
+        range.selectNode(editableDiv.current);
+        window.getSelection()?.removeAllRanges();
+        window.getSelection()?.addRange(range);
+      }
     }
   }, [ref]);
 
   return (
     <div
+      id="canvas-text-editor"
       contentEditable
       ref={editableDiv}
       className="absolute focus:outline-none"
