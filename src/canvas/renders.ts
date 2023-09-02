@@ -5,7 +5,6 @@ import type {
   CanvasElement,
   Position,
   ResizeMode,
-  RectangleElement,
   ResizeDirection,
   TextElement,
   LineElement,

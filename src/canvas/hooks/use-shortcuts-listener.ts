@@ -82,7 +82,7 @@ export function useShortcutsListener(
     return () => {
       document.removeEventListener("keydown", listener);
     };
-  }, [state, updateState]);
+  }, [state, updateState, opts?.hasSelectedText]);
 }
 
 function positionElementsCentered(

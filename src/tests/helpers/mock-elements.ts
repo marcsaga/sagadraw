@@ -37,7 +37,6 @@ export function mockText({
     x,
     y,
     text,
-    html: text,
     fontSize,
     selected,
     ySize: 30,
