@@ -45,12 +45,16 @@ function pointToLineDistance(point: Position, line: LineElement): number {
   return Math.hypot(point.x - projection.x, point.y - projection.y);
 }
 
+function isLineElement(element: BaseElement): element is LineElement {
+  return "type" in element && element.type === "line";
+}
+
 export function hasCollided<T extends BaseElement>(
   wrapper: T,
   target: Position | BaseElement
 ) {
-  if ("type" in wrapper && "id" in wrapper && wrapper.type === "line") {
-    return hasPointCollidedWithLine(wrapper as LineElement, target);
+  if (isLineElement(wrapper)) {
+    return hasPointCollidedWithLine(wrapper, target);
   }
   const stdWrapper = standarizeElement(wrapper);
   const stdTarget =
