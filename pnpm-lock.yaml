@@ -30,7 +30,7 @@ dependencies:
     specifier: 10.34.0
     version: 10.34.0
   nanoid:
-    specifier: ^4.0.2
+    specifier: 4.0.2
     version: 4.0.2
   next:
     specifier: 13.4.2
