@@ -56,9 +56,9 @@ export const useCanvas = (): UseCanvas => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [selectionElement, setSelectionElement] = useState<BaseElement>();
   const [state, setState] = useState<CanvasElement[]>([]);
-  const [textInput, setTextInput] = useState<TextElement | undefined>();
+  const [selectedTextID, setSelectedTextID] = useState<string>();
 
-  useShortcutsListener(state, setState);
+  useShortcutsListener(state, setState, { hasSelectedText: !!selectedTextID });
   useCursorUpdate(canvasRef, state, action);
   const { syncLocalStorage } = useSyncLocalStorage(setState);
 
@@ -66,13 +66,13 @@ export const useCanvas = (): UseCanvas => {
     const context = setUpCanvas(canvasRef.current);
     if (!context) return;
 
-    renderCanvasElements(context, state, selectionElement);
+    renderCanvasElements(context, state, selectionElement, selectedTextID);
     const collisionResponse = checkSelectedElements(state, selectionElement);
     if (collisionResponse?.updated) {
       setState(collisionResponse.newState);
     }
     syncLocalStorage(state);
-  }, [canvasRef, state, selectionElement, syncLocalStorage, textInput]);
+  }, [canvasRef, state, selectionElement, syncLocalStorage, selectedTextID]);
 
   const drawElement = (mousePosition: Position) => {
     setIsDrawing(true);
@@ -123,19 +123,25 @@ export const useCanvas = (): UseCanvas => {
     };
   };
 
+  const handleNewText = () => {
+    const selectedText = getSelectedText(selectedTextID);
+
+    const newState = selectedText.text
+      ? unSelectAll(state)
+      : state.filter((element) => element.id !== selectedTextID);
+
+    setState(newState);
+    setSelectedTextID(undefined);
+  };
+
   const startDrawing = ({ clientX, clientY }: React.MouseEvent) => {
-    if (textInput !== undefined) {
-      if (textInput.text) {
-        setState([...state, { ...textInput, selected: false }]);
-      }
-      setTextInput(undefined);
-      return;
+    if (selectedTextID !== undefined) {
+      return handleNewText();
     }
 
     const mousePosition = { x: clientX, y: clientY };
     if (action !== "select") {
-      drawElement(mousePosition);
-      return;
+      return drawElement(mousePosition);
     }
 
     const resizeCollision = hasResizeCollision(state, mousePosition);
@@ -153,8 +159,7 @@ export const useCanvas = (): UseCanvas => {
     const movingCollsion = hasMovingCollision(state, mousePosition);
     if (movingCollsion.ok) {
       movingPostion.current = mousePosition;
-      setState(movingCollsion.newState);
-      return;
+      return setState(movingCollsion.newState);
     }
 
     setIsDrawing(true);
@@ -193,20 +198,34 @@ export const useCanvas = (): UseCanvas => {
 
   const onDoubleClick = ({ clientX: x, clientY: y }: React.MouseEvent) => {
     const textInputCollision = hasTextInputCollision(state, { x, y });
+
+    let textElement: TextElement;
+    let newState: CanvasElement[];
     if (!textInputCollision.ok) {
-      setTextInput(createTextElement({ x, y }));
-      setState(unSelectAll(state));
-      return;
+      textElement = createTextElement({ x, y });
+      newState = [...unSelectAll(state), textElement];
+    } else {
+      textElement = textInputCollision.textElement;
+      newState = textInputCollision.newState;
     }
-    setState(textInputCollision.newState);
-    setTextInput(textInputCollision.textElement);
+
+    setState(newState);
+    setSelectedTextID(textElement.id);
   };
 
-  const onChangeTextInput = (element: TextElement) => setTextInput(element);
+  const onChangeTextInput = (textElement: TextElement) => {
+    setState([
+      ...unSelectAll(state).filter((element) => element.id !== textElement.id),
+      textElement,
+    ]);
+  };
+
+  const getSelectedText = (id?: string) =>
+    state.find((e) => e.id === id) as TextElement;
 
   return {
     canvasRef,
-    textInput,
+    textInput: getSelectedText(selectedTextID),
     action,
     onChangeTextInput,
     startDrawing,

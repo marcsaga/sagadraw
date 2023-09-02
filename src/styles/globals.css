@@ -1,27 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@layer components {
-  .canvas-text-input {
-    display: grid;
-    height: 25px;
-  }
-  .canvas-text-input::after {
-    content: attr(data-replicated-value) " ";
-    white-space: pre-wrap;
-    visibility: hidden;
-  }
-  .canvas-text-input > textarea {
-    resize: none;
-    overflow: hidden;
-  }
-  .canvas-text-input > textarea,
-  .canvas-text-input::after {
-    font: inherit;
-    grid-area: 1 / 1 / 2 / 2;
-  }
-  .canvas-text-input > textarea:focus {
-    outline: none;
-  }
-}

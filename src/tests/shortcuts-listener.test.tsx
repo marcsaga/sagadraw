@@ -71,7 +71,7 @@ describe("shortcuts listener", () => {
     ]);
   });
 
-  it("should not be able to duplicate elements that are no selected with cmd + D", () => {
+  it("should not be able to duplicate elements that are not selected with cmd + D", () => {
     CanvasElementStorage.set([unselectedMockedRect]);
 
     const { container } = render(<Canvas />);

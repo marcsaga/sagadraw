@@ -50,18 +50,16 @@ export class FireEventsAPI {
     });
   }
 
-  static createText(
-    container: Element,
-    text: TextElement,
-    getAllByRole: (role: string) => HTMLElement[]
-  ) {
+  static createText(container: Element, element: TextElement) {
+    FireEventsAPI.triggerDoubleClick(container, element);
+    const textEditor = container.querySelector("#canvas-text-editor")!;
+    fireEvent.input(textEditor, {
+      target: { innerText: element.text, innerHTML: element.text },
+    });
     const canvas = FireEventsAPI.getCanvasElement(container);
-    FireEventsAPI.triggerDoubleClick(container, text);
-    const textarea = getAllByRole("textbox")[0]!;
-    fireEvent.change(textarea, { target: { value: text.text } });
     fireEvent.mouseDown(canvas, {
-      clientX: text.x + text.xSize * 2,
-      clientY: text.y + text.ySize * 2,
+      clientX: element.x + element.xSize * 2,
+      clientY: element.y + element.ySize * 2,
     });
   }
 

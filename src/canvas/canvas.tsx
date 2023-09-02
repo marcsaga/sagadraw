@@ -1,6 +1,6 @@
 import { ActionsMenu } from "~/components/actions-menu";
 import { useCanvas } from "./hooks/use-canvas";
-import { Textarea } from "~/components/textarea";
+import { TextEditor } from "~/components/text-editor";
 
 export const Canvas = () => {
   const {
@@ -32,7 +32,10 @@ export const Canvas = () => {
         action={action}
       />
       {textInput && (
-        <Textarea textInput={textInput} onChangeTextInput={onChangeTextInput} />
+        <TextEditor
+          textInput={textInput}
+          onChangeTextInput={onChangeTextInput}
+        />
       )}
     </div>
   );

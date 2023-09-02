@@ -1,3 +1,4 @@
+import { TEXT_LINE_HEIGHT } from "./elements/create";
 import { getResizePositions, standarizeElement } from "./helpers";
 import type {
   BaseElement,
@@ -18,7 +19,7 @@ export const SHELL_MARGIN = 6;
 
 export function getLineResizeRectagles(
   element: LineElement
-): [ResizeLineDirection, Omit<RectangleElement, "id">][] {
+): [ResizeLineDirection, Omit<BaseElement, "id">][] {
   const margin = RESIZE_RECT_SIZE / 2;
   const topX = element.x - margin;
   const topY = element.y - margin;
@@ -33,7 +34,6 @@ export function getLineResizeRectagles(
         y: topY,
         xSize: RESIZE_RECT_SIZE,
         ySize: RESIZE_RECT_SIZE,
-        type: "rectangle",
       },
     ],
     [
@@ -43,7 +43,6 @@ export function getLineResizeRectagles(
         y: bottomY,
         xSize: RESIZE_RECT_SIZE,
         ySize: RESIZE_RECT_SIZE,
-        type: "rectangle",
       },
     ],
   ];
@@ -52,7 +51,7 @@ export function getLineResizeRectagles(
 export function getResizeRectangle(
   element: BaseElement,
   resizePosition: ResizeDirection
-): Omit<RectangleElement, "id"> {
+): Omit<BaseElement, "id"> {
   let position: Position;
 
   const halfMargin = RESIZE_RECT_SIZE / 2;
@@ -106,7 +105,6 @@ export function getResizeRectangle(
     ...position,
     xSize: RESIZE_RECT_SIZE,
     ySize: RESIZE_RECT_SIZE,
-    type: "rectangle",
   };
 }
 
@@ -157,7 +155,7 @@ function renderSelectedLine(
 }
 
 const singleSelectedMode: Record<ElementType, ResizeMode> = {
-  text: "none",
+  text: "text",
   line: "line",
   rectangle: "single",
 };
@@ -250,20 +248,27 @@ function renderRectanble(
 export function renderCanvasElements(
   context: CanvasRenderingContext2D,
   state: CanvasElement[],
-  selectionElement?: BaseElement
+  selectionElement?: BaseElement,
+  selectedTextID?: string
 ) {
   const selectedRect = getSelectedRect(state);
   for (const [, element] of state.entries()) {
     switch (element.type) {
       case "rectangle":
         renderRectanble(context, element, "drawed");
-        if (element.selected && selectedRect?.mode === "multiple") {
-          renderSelectedRect(context, element, "none");
+        if (element.selected) {
+          renderSelectedRect(
+            context,
+            element,
+            selectedRect?.mode === "multiple" ? "none" : "single"
+          );
         }
         break;
       case "text":
-        renderText(context, element);
-        if (element.selected && selectedRect?.mode === "multiple") {
+        if (selectedTextID !== element.id) {
+          renderText(context, element);
+        }
+        if (element.selected && selectedTextID !== element.id) {
           renderSelectedRect(context, element, "none");
         }
         break;
@@ -278,7 +283,7 @@ export function renderCanvasElements(
     }
   }
 
-  if (selectedRect && selectedRect.mode !== "line") {
+  if (selectedRect?.mode === "multiple") {
     renderSelectedRect(context, selectedRect.element, selectedRect.mode);
   }
 
@@ -286,6 +291,8 @@ export function renderCanvasElements(
     renderRectanble(context, selectionElement, "selection");
   }
 }
+
+const INPUT_MARGIN = 2.5;
 
 export function renderText(
   context: CanvasRenderingContext2D,
@@ -299,8 +306,8 @@ export function renderText(
 
   let y = element.y;
   for (const line of lines) {
-    context.fillText(line, element.x, y);
-    y += 24;
+    context.fillText(line, element.x, y + INPUT_MARGIN);
+    y += TEXT_LINE_HEIGHT;
   }
 }
 

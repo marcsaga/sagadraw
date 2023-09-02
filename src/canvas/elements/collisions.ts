@@ -1,15 +1,12 @@
 import { getResizeRectangles, standarizeElement } from "../helpers";
-import {
-  SHELL_MARGIN,
-  getLineResizeRectagles,
-  getSelectedRect,
-} from "../renders";
+import { SHELL_MARGIN, getSelectedRect } from "../renders";
 import type {
   BaseElement,
   CanvasElement,
   LineElement,
   Position,
   ResizeDirection,
+  ResizeLineDirection,
   TextElement,
 } from "../types";
 
@@ -78,30 +75,27 @@ export function hasResizeCollision(
   const selectedRect = getSelectedRect(state);
   if (!selectedRect) return { ok: false };
 
-  if (selectedRect.mode === "line") {
-    const resizeCollision = getLineResizeRectagles(
-      selectedRect.element as LineElement
-    ).find(([, rectangle]) => hasCollided(rectangle, mousePosition));
-    if (!resizeCollision) {
-      return { ok: false };
-    }
-
-    const newState = state.map((element) =>
-      element.selected
-        ? { ...element, resizeDirection: resizeCollision[0] }
-        : element
-    );
-    return { ok: true, direction: resizeCollision[0], newState };
-  }
-
   const resizeCollision = getResizeRectangles(
     selectedRect.element,
     selectedRect.mode
   ).find(([, rectangle]) => hasCollided(rectangle, mousePosition));
+  if (!resizeCollision) {
+    return { ok: false };
+  }
 
-  return resizeCollision
-    ? { ok: true, direction: resizeCollision[0] }
-    : { ok: false };
+  let newState: CanvasElement[] | undefined;
+  if (selectedRect.mode === "line") {
+    newState = state.map((element) =>
+      element.selected && element.type === "line"
+        ? {
+            ...element,
+            resizeDirection: resizeCollision[0] as ResizeLineDirection,
+          }
+        : element
+    );
+  }
+
+  return { ok: true, direction: resizeCollision[0], newState };
 }
 
 function expandElement<T extends BaseElement>(rect: T): T {
@@ -174,6 +168,9 @@ export function hasTextInputCollision(
   return {
     ok: true,
     textElement: state[elementIndex] as TextElement,
-    newState: state.filter((_element, index) => index !== elementIndex),
+    newState: state.map((element, index) => ({
+      ...element,
+      selected: index === elementIndex,
+    })),
   };
 }

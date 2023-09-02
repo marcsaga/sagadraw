@@ -1,11 +1,25 @@
 import { hasCollided } from "./elements/collisions";
-import { getResizeRectangle, getSelectedRect } from "./renders";
+import {
+  getLineResizeRectagles,
+  getResizeRectangle,
+  getSelectedRect,
+} from "./renders";
 import type {
   BaseElement,
   CanvasElement,
+  LineElement,
   ResizeDirection,
   ResizeMode,
 } from "./types";
+
+export function getCanvasContext(
+  element?: HTMLCanvasElement | null
+): CanvasRenderingContext2D | undefined {
+  if (!element) return;
+  const context = element.getContext("2d");
+  if (!context) return;
+  return context;
+}
 
 export function setUpCanvas(
   element?: HTMLCanvasElement | null
@@ -16,9 +30,8 @@ export function setUpCanvas(
   element.style.width = `${window.innerWidth}px`;
   element.style.height = `${window.innerHeight}px`;
 
-  const context = element.getContext("2d");
-  if (!context) return;
-  context.scale(2, 2);
+  const context = getCanvasContext(element);
+  context?.scale(2, 2);
 
   return context;
 }
@@ -53,30 +66,38 @@ const MULTIPLE_ELEMENTS_RESIZE_POSITIONS = new Set<ResizeDirection>([
 
 const NONE_ELEMENT_RESIZE_POSITIONS = new Set<ResizeDirection>([]);
 
-type ResizableBox = "single" | "multiple" | "none";
+type ResizableBox = "single" | "multiple" | "none" | "text";
 
 const resizePositionsDictionary: Record<ResizableBox, Set<ResizeDirection>> = {
   single: SINGLE_ELEMENT_RESIZE_POSITIONS,
   none: NONE_ELEMENT_RESIZE_POSITIONS,
   multiple: MULTIPLE_ELEMENTS_RESIZE_POSITIONS,
+  text: NONE_ELEMENT_RESIZE_POSITIONS,
 };
 
 export const getResizePositions = (mode: ResizableBox) => {
   return resizePositionsDictionary[mode];
 };
 
+const getRectResizeRectangles = (
+  element: BaseElement,
+  mode: ResizableBox
+): [ResizeDirection, BaseElement][] => {
+  const positions = getResizePositions(mode);
+  return Array.from(positions).map((position) => [
+    position,
+    getResizeRectangle(element, position),
+  ]);
+};
+
 export function getResizeRectangles(
   element: BaseElement,
   mode: ResizeMode
 ): [ResizeDirection, BaseElement][] {
-  if (mode !== "line") {
-    const positions = getResizePositions(mode);
-    return Array.from(positions).map((position) => [
-      position,
-      getResizeRectangle(element, position),
-    ]);
+  if (mode === "line") {
+    return getLineResizeRectagles(element as LineElement);
   }
-  return [];
+  return getRectResizeRectangles(element, mode);
 }
 
 export function checkSelectedElements(

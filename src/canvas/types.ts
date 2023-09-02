@@ -11,8 +11,9 @@ export interface BaseElement extends Position {
 }
 
 export interface DrawedElement extends BaseElement {
+  id: string;
   type: ElementType;
-  selected?: boolean;
+  selected: boolean;
 }
 
 export interface RectangleElement extends DrawedElement {
@@ -28,7 +29,7 @@ export interface TextElement extends DrawedElement {
   type: "text";
   text: string;
   fontSize: number;
-  isEditing?: boolean;
+  fontFamily: string;
 }
 
 export type CanvasElement = RectangleElement | TextElement | LineElement;
@@ -47,6 +48,6 @@ export type ResizeRectangleDirection =
 
 export type ResizeDirection = ResizeLineDirection | ResizeRectangleDirection;
 
-export type ResizableBox = "single" | "multiple" | "none";
+export type ResizableBox = "single" | "multiple" | "none" | "text";
 
 export type ResizeMode = ResizableBox | "line";

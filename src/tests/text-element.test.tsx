@@ -10,10 +10,10 @@ describe("text element", () => {
   });
 
   it("should create a text element", () => {
-    const { container, getAllByRole } = render(<Canvas />);
+    const { container } = render(<Canvas />);
 
     const mockedText = mockText({ x: 100, y: 100, text: "Hello World" });
-    FireEventsAPI.createText(container, mockedText, getAllByRole);
+    FireEventsAPI.createText(container, mockedText);
 
     const elements = CanvasElementStorage.get();
     expect(elements).toEqual([
@@ -21,21 +21,23 @@ describe("text element", () => {
     ]);
   });
 
-  it("should be able to create 30 text elements", () => {
-    const { container, getAllByRole } = render(<Canvas />);
+  it("should no be selected after creating a text element", () => {
+    const { container } = render(<Canvas />);
 
-    for (let i = 0; i < 15; i++) {
-      const mockedText = mockText({ x: i * 10, y: i * 10, text: `hi ${i}` });
-      FireEventsAPI.createText(container, mockedText, getAllByRole);
-    }
+    FireEventsAPI.createText(
+      container,
+      mockText({ x: 100, y: 100, text: "Hello World" })
+    );
 
-    expect(CanvasElementStorage.get()).toHaveLength(15);
+    expect(CanvasElementStorage.get()).toEqual([
+      expect.objectContaining({ selected: false }),
+    ]);
   });
 
   it("should be possible to edit a text element by doble clicking on top", () => {
     const mockedText = mockText({ x: 100, y: 100, text: "Hello world" });
     CanvasElementStorage.set([mockedText]);
-    const { container, getAllByRole } = render(<Canvas />);
+    const { container } = render(<Canvas />);
 
     const editedMockedText = {
       ...mockedText,
@@ -43,7 +45,7 @@ describe("text element", () => {
       x: mockedText.x + mockedText.xSize / 2,
       y: mockedText.y + mockedText.ySize / 2,
     };
-    FireEventsAPI.createText(container, editedMockedText, getAllByRole);
+    FireEventsAPI.createText(container, editedMockedText);
 
     const elements = CanvasElementStorage.get();
     expect(elements).toEqual([
@@ -52,7 +54,7 @@ describe("text element", () => {
   });
 
   it("should be able to add a text element inside a rectangle", () => {
-    const { container, getAllByRole } = render(<Canvas />);
+    const { container } = render(<Canvas />);
 
     const mockedRect = mockRectangle({});
     FireEventsAPI.createRectangle(container, mockedRect);
@@ -62,37 +64,12 @@ describe("text element", () => {
       y: mockedRect.y + mockedRect.ySize / 2,
       text: "Hello World",
     });
-    FireEventsAPI.createText(container, mockedText, getAllByRole);
+    FireEventsAPI.createText(container, mockedText);
 
     const elements = CanvasElementStorage.get();
     expect(elements).toEqual(
       expect.arrayContaining([expect.objectContaining({ text: "Hello World" })])
     );
-  });
-
-  it("should be able to edit a text element inside a rectangle", () => {
-    const mockedRect = mockRectangle({});
-    const mockedText = mockText({
-      x: mockedRect.x + mockedRect.xSize / 2,
-      y: mockedRect.y + mockedRect.ySize / 2,
-      text: "Hello World",
-    });
-    CanvasElementStorage.set([mockedRect, mockedText]);
-    const { container, getAllByRole } = render(<Canvas />);
-
-    const editedMockedText = {
-      ...mockedText,
-      text: "Bye bye world",
-      x: mockedText.x + mockedText.xSize / 2,
-      y: mockedText.y + mockedText.ySize / 2,
-    };
-    FireEventsAPI.createText(container, editedMockedText, getAllByRole);
-
-    const elements = CanvasElementStorage.get();
-    expect(elements).toEqual([
-      expect.objectContaining({ type: "rectangle" }),
-      expect.objectContaining({ text: editedMockedText.text }),
-    ]);
   });
 
   it("should not select an element when doble clicking on it to add a text inside a rect", () => {

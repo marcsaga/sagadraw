@@ -6,7 +6,8 @@ import { getRelativePosition } from "../elements/resize";
 
 export function useShortcutsListener(
   state: CanvasElement[],
-  updateState: (state: CanvasElement[]) => void
+  updateState: (state: CanvasElement[]) => void,
+  opts?: { hasSelectedText: boolean }
 ) {
   const mousePosition = useRef({ x: 0, y: 0 });
   useEffect(() => {
@@ -22,7 +23,7 @@ export function useShortcutsListener(
 
   useEffect(() => {
     const listener = (event: KeyboardEvent) => {
-      if (event.key === "Backspace") {
+      if (event.key === "Backspace" && !opts?.hasSelectedText) {
         updateState(state.filter((element) => !element.selected));
       }
 
@@ -39,7 +40,11 @@ export function useShortcutsListener(
         updateState([...unSelectAll(state), ...selectedElements]);
       }
 
-      if ((event.metaKey || event.ctrlKey) && event.key === "a") {
+      if (
+        (event.metaKey || event.ctrlKey) &&
+        event.key === "a" &&
+        !opts?.hasSelectedText
+      ) {
         event.preventDefault();
         updateState(state.map((element) => ({ ...element, selected: true })));
       }

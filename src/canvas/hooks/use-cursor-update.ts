@@ -36,12 +36,12 @@ export function useCursorUpdate(
       if (action !== "select") {
         cursor = "crosshair";
       }
+      if (hasMovingCollision(state, { x, y }).ok) {
+        cursor = "move";
+      }
       const resizeCollision = hasResizeCollision(state, { x, y });
       if (resizeCollision.ok) {
         cursor = resizeCursorDict[resizeCollision.direction];
-      }
-      if (hasMovingCollision(state, { x, y }).ok) {
-        cursor = "move";
       }
       canvasRef.current!.style.cursor = cursor;
     }

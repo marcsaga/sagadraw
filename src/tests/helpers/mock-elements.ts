@@ -11,9 +11,17 @@ export function mockRectangle({
   y = 100,
   xSize = 200,
   ySize = 200,
-  selected,
+  selected = false,
 }: Partial<Omit<RectangleElement, "type">>): RectangleElement {
-  return { id: generateID(), type: "rectangle", x, y, xSize, ySize, selected };
+  return {
+    id: generateID(),
+    type: "rectangle",
+    x,
+    y,
+    xSize,
+    ySize,
+    selected,
+  };
 }
 
 export function mockText({
@@ -21,7 +29,7 @@ export function mockText({
   y = 100,
   text = "text",
   fontSize = 16,
-  selected,
+  selected = false,
 }: Partial<Omit<TextElement, "type">>): TextElement {
   return {
     id: generateID(),
@@ -29,10 +37,12 @@ export function mockText({
     x,
     y,
     text,
+    html: text,
     fontSize,
     selected,
     ySize: 30,
     xSize: 30,
+    fontFamily: "sans-serif",
   };
 }
 
@@ -41,7 +51,7 @@ export function mockLine({
   y = 100,
   xSize = 200,
   ySize = 200,
-  selected,
+  selected = false,
 }: Partial<Omit<LineElement, "type">>): LineElement {
   return { id: generateID(), type: "line", x, y, xSize, ySize, selected };
 }

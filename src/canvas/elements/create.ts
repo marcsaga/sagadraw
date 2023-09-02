@@ -10,6 +10,9 @@ export function generateID(): string {
   return nanoid();
 }
 
+export const TEXT_LINE_HEIGHT = 20;
+const fontFamily = "sans-serif";
+
 export function createTextElement({ x, y }: Position): TextElement {
   return {
     id: generateID(),
@@ -17,16 +20,34 @@ export function createTextElement({ x, y }: Position): TextElement {
     y,
     text: "",
     xSize: 10,
-    ySize: 15,
+    ySize: TEXT_LINE_HEIGHT,
     type: "text",
     fontSize: 16,
+    fontFamily,
+    selected: false,
   };
 }
 
 export function createRectangleElement({ x, y }: Position): RectangleElement {
-  return { id: generateID(), x, y, xSize: 0, ySize: 0, type: "rectangle" };
+  return {
+    id: generateID(),
+    x,
+    y,
+    xSize: 0,
+    ySize: 0,
+    type: "rectangle",
+    selected: false,
+  };
 }
 
 export function createLineElement({ x, y }: Position): LineElement {
-  return { id: generateID(), x, y, xSize: 0, ySize: 0, type: "line" };
+  return {
+    id: generateID(),
+    x,
+    y,
+    xSize: 0,
+    ySize: 0,
+    type: "line",
+    selected: false,
+  };
 }
