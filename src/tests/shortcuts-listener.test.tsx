@@ -197,4 +197,52 @@ describe("shortcuts listener", () => {
 
     expect(CanvasElementStorage.get()).toEqual([unselectedMockedRect]);
   });
+
+  it("should move a selected element on arrow up", () => {
+    CanvasElementStorage.set([selectedMockedRect]);
+
+    const { container } = render(<Canvas />);
+    const canvas = FireEventsAPI.getCanvasElement(container);
+
+    fireEvent.keyDown(canvas, { key: "ArrowUp" });
+    expect(CanvasElementStorage.get()).toEqual([
+      expect.objectContaining({ selected: true, y: selectedMockedRect.y - 1 }),
+    ]);
+  });
+
+  it("should move a selected element on arrow down", () => {
+    CanvasElementStorage.set([selectedMockedRect]);
+
+    const { container } = render(<Canvas />);
+    const canvas = FireEventsAPI.getCanvasElement(container);
+
+    fireEvent.keyDown(canvas, { key: "ArrowDown" });
+    expect(CanvasElementStorage.get()).toEqual([
+      expect.objectContaining({ selected: true, y: selectedMockedRect.y + 1 }),
+    ]);
+  });
+
+  it("should move a selected element on arrow left", () => {
+    CanvasElementStorage.set([selectedMockedRect]);
+
+    const { container } = render(<Canvas />);
+    const canvas = FireEventsAPI.getCanvasElement(container);
+
+    fireEvent.keyDown(canvas, { key: "ArrowLeft" });
+    expect(CanvasElementStorage.get()).toEqual([
+      expect.objectContaining({ selected: true, x: selectedMockedRect.x - 1 }),
+    ]);
+  });
+
+  it("should move a selected element on arrow right", () => {
+    CanvasElementStorage.set([selectedMockedRect]);
+
+    const { container } = render(<Canvas />);
+    const canvas = FireEventsAPI.getCanvasElement(container);
+
+    fireEvent.keyDown(canvas, { key: "ArrowRight" });
+    expect(CanvasElementStorage.get()).toEqual([
+      expect.objectContaining({ selected: true, x: selectedMockedRect.x + 1 }),
+    ]);
+  });
 });

@@ -76,6 +76,42 @@ export function useShortcutsListener(
         void navigator.clipboard.writeText(JSON.stringify(selectedElements));
         updateState(state.filter((element) => !element.selected));
       }
+
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        updateState(
+          state.map((element) =>
+            element.selected ? { ...element, y: element.y - 1 } : element
+          )
+        );
+      }
+
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        updateState(
+          state.map((element) =>
+            element.selected ? { ...element, y: element.y + 1 } : element
+          )
+        );
+      }
+
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        updateState(
+          state.map((element) =>
+            element.selected ? { ...element, x: element.x - 1 } : element
+          )
+        );
+      }
+
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        updateState(
+          state.map((element) =>
+            element.selected ? { ...element, x: element.x + 1 } : element
+          )
+        );
+      }
     };
 
     document.addEventListener("keydown", listener);
