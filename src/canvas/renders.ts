@@ -1,3 +1,4 @@
+import { getAlignmentLines } from "./elements/alignment";
 import { TEXT_LINE_HEIGHT } from "./elements/create";
 import { getResizePositions, standarizeElement } from "./helpers";
 import type {
@@ -286,6 +287,10 @@ export function renderCanvasElements(
     renderSelectedRect(context, selectedRect.element, selectedRect.mode);
   }
 
+  if (selectedRect) {
+    renderAlignmentLines(state, context);
+  }
+
   if (selectionElement) {
     renderRectanble(context, selectionElement, "selection");
   }
@@ -310,12 +315,33 @@ export function renderText(
   }
 }
 
+export interface RenderLineOpts {
+  strokeStyle?: string;
+  lineWidth?: number;
+}
+
 export function renderLine(
   context: CanvasRenderingContext2D,
-  element: LineElement
+  element: BaseElement,
+  opts?: RenderLineOpts
 ) {
   context.beginPath();
+  context.strokeStyle = opts?.strokeStyle ?? "black";
+  context.lineWidth = opts?.lineWidth ?? 1;
   context.moveTo(element.x, element.y);
   context.lineTo(element.x + element.xSize, element.y + element.ySize);
   context.stroke();
+}
+
+function renderAlignmentLines(
+  state: CanvasElement[],
+  ctx: CanvasRenderingContext2D
+) {
+  const alignmentLines = getAlignmentLines(state);
+  if (!alignmentLines) {
+    return;
+  }
+  for (const line of alignmentLines) {
+    renderLine(ctx, line, { strokeStyle: "red", lineWidth: 0.5 });
+  }
 }

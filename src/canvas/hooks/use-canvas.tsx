@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   checkSelectedElements,
   hasMinimumSize,
-  resetAllResizeDirections,
+  standarizeResizingElements,
   setUpCanvas,
   standarizeElement,
   unSelectAll,
@@ -188,7 +188,7 @@ export const useCanvas = (): UseCanvas => {
     setSelectionElement(undefined);
     if (resizingPosition.current) {
       resizingPosition.current = undefined;
-      newState = resetAllResizeDirections(newState);
+      newState = standarizeResizingElements(newState);
     }
     setState(newState);
   };

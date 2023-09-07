@@ -128,11 +128,13 @@ export function unSelectAll(state: CanvasElement[]): CanvasElement[] {
   return state.map((element) => ({ ...element, selected: false }));
 }
 
-export function resetAllResizeDirections(state: CanvasElement[]) {
+export function standarizeResizingElements(state: CanvasElement[]) {
   return state.map((element) =>
-    "resizeDirection" in element
-      ? { ...element, resizeDirection: undefined }
-      : element
+    standarizeElement(
+      "resizeDirection" in element
+        ? element
+        : { ...element, resizeDirection: undefined }
+    )
   );
 }
 
