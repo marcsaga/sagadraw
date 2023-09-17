@@ -130,11 +130,9 @@ export function unSelectAll(state: CanvasElement[]): CanvasElement[] {
 
 export function standarizeResizingElements(state: CanvasElement[]) {
   return state.map((element) =>
-    standarizeElement(
-      "resizeDirection" in element
-        ? element
-        : { ...element, resizeDirection: undefined }
-    )
+    "resizeDirection" in element || element.type === "line"
+      ? { ...element, resizeDirection: undefined }
+      : standarizeElement(element)
   );
 }
 
