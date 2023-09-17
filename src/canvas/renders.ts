@@ -160,9 +160,12 @@ const singleSelectedMode: Record<ElementType, ResizeMode> = {
   rectangle: "single",
 };
 
-export function getSelectedRect(
-  state: CanvasElement[]
-): { element: BaseElement; mode: ResizeMode } | undefined {
+type SelectedRect =
+  | { mode: "multiple"; element: BaseElement }
+  | { mode: Exclude<ResizeMode, "multiple">; element: CanvasElement }
+  | undefined;
+
+export function getSelectedRect(state: CanvasElement[]): SelectedRect {
   const selectedElements = state.filter((element) => element.selected);
   if (selectedElements.length === 0) {
     return;
@@ -343,10 +346,8 @@ export function renderEndArrow(
 ) {
   const arrowSize = 10;
   const angle = Math.atan2(element.ySize, element.xSize);
-  const x =
-    element.x + element.xSize - Math.cos(angle) * ((arrowSize * -1) / 6);
-  const y =
-    element.y + element.ySize - Math.sin(angle) * ((arrowSize * -1) / 6);
+  const x = element.x + element.xSize - Math.cos(angle);
+  const y = element.y + element.ySize - Math.sin(angle);
 
   context.beginPath();
   context.moveTo(x, y);

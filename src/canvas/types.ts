@@ -24,6 +24,8 @@ export interface LineElement extends DrawedElement {
   type: "line";
   resizeDirection?: ResizeLineDirection;
   hasEndArrow?: boolean;
+  startBindingID?: string;
+  endBindingID?: string;
 }
 
 export interface TextElement extends DrawedElement {

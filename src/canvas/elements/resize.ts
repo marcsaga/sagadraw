@@ -76,7 +76,7 @@ function resizeSingleElement(
         };
       }
       default:
-        throw new Error("Invalid resize rectangle position");
+        throw new Error("Invalid single resize element position");
     }
   });
 
@@ -101,7 +101,7 @@ function resizeMultipleElements(
   if (!selectedRect) return state;
 
   const newState = state.map((rect) => {
-    if (!rect.selected) return rect;
+    if (!rect.selected || rect.type === "text") return rect;
     const { direction, position } = resizeState;
     const diff = 1 + (mousePosition.y - position.y) / MULTIPLE_RESIZE_VELOCITY;
     const inverseDiff = 1 / diff;
@@ -156,7 +156,7 @@ function resizeMultipleElements(
         };
 
       default:
-        throw new Error("Invalid resize rectangle position");
+        throw new Error("Invalid multiple resize rectangle position");
     }
   });
 

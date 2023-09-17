@@ -5,10 +5,12 @@ import type {
   CanvasElement,
   LineElement,
   Position,
+  RectangleElement,
   ResizeDirection,
   ResizeLineDirection,
   TextElement,
 } from "../types";
+import { createLineElement, generateID } from "./create";
 
 const LINE_COLLISION_THESHOLD = 2;
 
@@ -177,4 +179,91 @@ export function hasTextInputCollision(
       selected: index === elementIndex,
     })),
   };
+}
+
+export function getRectangleLines(rectangle: RectangleElement): LineElement[] {
+  const lines = [
+    { x: rectangle.x, y: rectangle.y, xSize: rectangle.xSize, ySize: 0 },
+    { x: rectangle.x, y: rectangle.y, xSize: 0, ySize: rectangle.ySize },
+    {
+      x: rectangle.x + rectangle.xSize,
+      y: rectangle.y,
+      xSize: 0,
+      ySize: rectangle.ySize,
+    },
+    {
+      x: rectangle.x,
+      y: rectangle.y + rectangle.ySize,
+      xSize: rectangle.xSize,
+      ySize: 0,
+    },
+  ];
+
+  return lines.map((line) => ({ ...createLineElement(line), ...line }));
+}
+
+function isRectangleElement(
+  element: CanvasElement
+): element is RectangleElement {
+  return element.type === "rectangle";
+}
+
+const BINDING_COLLISION_THRESHOLD = 10;
+
+export function getBindingState(
+  state: CanvasElement[],
+  line: LineElement,
+  mousePosition: Position
+): CanvasElement[] {
+  if (!line.resizeDirection) {
+    return state;
+  }
+
+  const rectangleLines = state
+    .filter(isRectangleElement)
+    .map((rect) => ({ id: rect.id, lines: getRectangleLines(rect) }));
+
+  let newPosition: Position = mousePosition;
+  let rectangleID: string | undefined;
+  for (const rectangle of rectangleLines) {
+    for (const line of rectangle.lines) {
+      if (
+        pointToLineDistance(mousePosition, line) < BINDING_COLLISION_THRESHOLD
+      ) {
+        if (line.xSize === 0) {
+          newPosition = { x: line.x, y: mousePosition.y };
+        } else {
+          newPosition = { x: mousePosition.x, y: line.y };
+        }
+        rectangleID = rectangle.id;
+        break;
+      }
+    }
+  }
+
+  if (mousePosition.x === newPosition.x && mousePosition.y === newPosition.y) {
+    return state;
+  }
+
+  return state.map((element) => {
+    if (element.id !== line.id) return element;
+    const lineElement = element as LineElement;
+    if (line.resizeDirection === "line-start") {
+      return {
+        ...lineElement,
+        startBindingID: rectangleID,
+        x: newPosition.x,
+        y: newPosition.y,
+        xSize: line.xSize + (line.x - newPosition.x),
+        ySize: line.ySize + (line.y - newPosition.y),
+      };
+    }
+
+    return {
+      ...lineElement,
+      endBindingID: rectangleID,
+      xSize: line.xSize + (newPosition.x - (line.x + line.xSize)),
+      ySize: line.ySize + (newPosition.y - (line.y + line.ySize)),
+    };
+  });
 }
