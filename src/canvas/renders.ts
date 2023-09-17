@@ -322,7 +322,7 @@ export interface RenderLineOpts {
 
 export function renderLine(
   context: CanvasRenderingContext2D,
-  element: BaseElement,
+  element: LineElement,
   opts?: RenderLineOpts
 ) {
   context.beginPath();
@@ -330,6 +330,35 @@ export function renderLine(
   context.lineWidth = opts?.lineWidth ?? 1;
   context.moveTo(element.x, element.y);
   context.lineTo(element.x + element.xSize, element.y + element.ySize);
+  context.stroke();
+
+  if (element.hasEndArrow && element.xSize !== 0 && element.ySize !== 0) {
+    renderEndArrow(context, element);
+  }
+}
+
+export function renderEndArrow(
+  context: CanvasRenderingContext2D,
+  element: LineElement
+) {
+  const arrowSize = 10;
+  const angle = Math.atan2(element.ySize, element.xSize);
+  const x =
+    element.x + element.xSize - Math.cos(angle) * ((arrowSize * -1) / 6);
+  const y =
+    element.y + element.ySize - Math.sin(angle) * ((arrowSize * -1) / 6);
+
+  context.beginPath();
+  context.moveTo(x, y);
+  context.lineTo(
+    x - Math.cos(angle - Math.PI / 6) * arrowSize,
+    y - Math.sin(angle - Math.PI / 6) * arrowSize
+  );
+  context.moveTo(x, y);
+  context.lineTo(
+    x - Math.cos(angle + Math.PI / 6) * arrowSize,
+    y - Math.sin(angle + Math.PI / 6) * arrowSize
+  );
   context.stroke();
 }
 

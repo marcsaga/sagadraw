@@ -40,7 +40,10 @@ export function createRectangleElement({ x, y }: Position): RectangleElement {
   };
 }
 
-export function createLineElement({ x, y }: Position): LineElement {
+export function createLineElement(
+  { x, y }: Position,
+  opts?: { endArrow?: boolean }
+): LineElement {
   return {
     id: generateID(),
     x,
@@ -49,5 +52,6 @@ export function createLineElement({ x, y }: Position): LineElement {
     ySize: 0,
     type: "line",
     selected: false,
+    hasEndArrow: opts?.endArrow,
   };
 }

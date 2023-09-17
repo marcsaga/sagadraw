@@ -1,4 +1,4 @@
-export type MenuAction = "rectangle" | "line" | "select";
+export type MenuAction = "rectangle" | "line" | "select" | "arrow";
 
 interface ActionsMenuProps {
   action: MenuAction;
@@ -9,6 +9,7 @@ interface ActionsMenuProps {
 const options: { label: string; action: MenuAction }[] = [
   { label: "Rectangle", action: "rectangle" },
   { label: "Line", action: "line" },
+  { label: "Arrow", action: "arrow" },
   { label: "Select", action: "select" },
 ];
 

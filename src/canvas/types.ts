@@ -23,6 +23,7 @@ export interface RectangleElement extends DrawedElement {
 export interface LineElement extends DrawedElement {
   type: "line";
   resizeDirection?: ResizeLineDirection;
+  hasEndArrow?: boolean;
 }
 
 export interface TextElement extends DrawedElement {

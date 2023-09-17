@@ -85,7 +85,11 @@ export const useCanvas = (): UseCanvas => {
         setState([...newState, createRectangleElement(mousePosition)]);
         break;
       case "line":
-        setState([...newState, createLineElement(mousePosition)]);
+      case "arrow":
+        setState([
+          ...newState,
+          createLineElement(mousePosition, { endArrow: action === "arrow" }),
+        ]);
         break;
       default:
         throw new Error(`Action ${action} not implemented`);

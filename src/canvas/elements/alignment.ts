@@ -3,8 +3,10 @@ import type {
   BaseElement,
   CanvasElement,
   ElementType,
+  LineElement,
   ResizeMode,
 } from "../types";
+import { generateID } from "./create";
 
 const ALIGNMENT_LINE_MODES = new Set<ResizeMode>(["single", "multiple"]);
 const ALIGNMENT_TYPES = new Set<ElementType>(["rectangle"]);
@@ -15,7 +17,7 @@ function filterAlignmentElement(element: CanvasElement) {
 
 export function getAlignmentLines(
   elements: CanvasElement[]
-): BaseElement[] | undefined {
+): LineElement[] | undefined {
   const selectedRect = getSelectedRect(elements);
   if (!selectedRect || !ALIGNMENT_LINE_MODES.has(selectedRect.mode)) {
     return;
@@ -144,5 +146,10 @@ export function getAlignmentLines(
     }
   }
 
-  return alignmentLines;
+  return alignmentLines.map((element) => ({
+    ...element,
+    id: generateID(),
+    type: "line",
+    selected: false,
+  }));
 }

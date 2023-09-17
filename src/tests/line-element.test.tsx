@@ -18,7 +18,7 @@ describe("line element", () => {
     FireEventsAPI.createLine(container, mockedLine);
 
     const elements = CanvasElementStorage.get();
-    expect(elements).toEqual([mockedLine]);
+    expect(elements).toEqual([expect.objectContaining(mockedLine)]);
   });
 
   it("should be able to create 30 line elements", () => {
