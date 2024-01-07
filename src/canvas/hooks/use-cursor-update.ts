@@ -10,7 +10,13 @@ type ResizeCursor =
   | "ew-resize"
   | "pointer";
 
-type Cursor = "default" | "move" | "pointer" | "crosshair" | ResizeCursor;
+type Cursor =
+  | "default"
+  | "move"
+  | "pointer"
+  | "crosshair"
+  | "text"
+  | ResizeCursor;
 
 const resizeCursorDict: Record<ResizeDirection, ResizeCursor> = {
   "top-left": "nwse-resize",
@@ -35,6 +41,9 @@ export function useCursorUpdate(
       let cursor: Cursor = "default";
       if (action !== "select") {
         cursor = "crosshair";
+      }
+      if (action === "text") {
+        cursor = "text";
       }
       if (hasMovingCollision(state, { x, y }).ok) {
         cursor = "move";

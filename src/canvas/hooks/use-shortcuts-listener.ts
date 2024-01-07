@@ -77,7 +77,7 @@ export function useShortcutsListener(
         updateState(state.filter((element) => !element.selected));
       }
 
-      if (event.key === "ArrowUp") {
+      if (event.key === "ArrowUp" && !opts?.hasSelectedText) {
         event.preventDefault();
         updateState(
           state.map((element) =>
@@ -86,7 +86,7 @@ export function useShortcutsListener(
         );
       }
 
-      if (event.key === "ArrowDown") {
+      if (event.key === "ArrowDown" && !opts?.hasSelectedText) {
         event.preventDefault();
         updateState(
           state.map((element) =>
@@ -95,7 +95,7 @@ export function useShortcutsListener(
         );
       }
 
-      if (event.key === "ArrowLeft") {
+      if (event.key === "ArrowLeft" && !opts?.hasSelectedText) {
         event.preventDefault();
         updateState(
           state.map((element) =>
@@ -104,7 +104,7 @@ export function useShortcutsListener(
         );
       }
 
-      if (event.key === "ArrowRight") {
+      if (event.key === "ArrowRight" && !opts?.hasSelectedText) {
         event.preventDefault();
         updateState(
           state.map((element) =>

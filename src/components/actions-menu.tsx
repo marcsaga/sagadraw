@@ -1,8 +1,10 @@
-export type MenuAction = "rectangle" | "line" | "select" | "arrow";
+import type { Position } from "~/canvas/types";
+
+export type MenuAction = "rectangle" | "line" | "select" | "text" | "arrow";
 
 interface ActionsMenuProps {
   action: MenuAction;
-  selectAction: (action: MenuAction) => void;
+  selectAction: (action: MenuAction, position: Position) => void;
   deleteAll: () => void;
 }
 
@@ -11,6 +13,7 @@ const options: { label: string; action: MenuAction }[] = [
   { label: "Line", action: "line" },
   { label: "Arrow", action: "arrow" },
   { label: "Select", action: "select" },
+  { label: "Text", action: "text" },
 ];
 
 export function ActionsMenu({
@@ -31,7 +34,11 @@ export function ActionsMenu({
               option.action === action ? "1px solid while" : "1px solid black",
             color: option.action === action ? "white" : "black",
           }}
-          onClick={() => selectAction(option.action)}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            selectAction(option.action, { x: event.clientX, y: event.clientY });
+          }}
         >
           <span>{option.label}</span>
         </button>

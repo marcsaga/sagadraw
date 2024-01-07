@@ -8,23 +8,35 @@ interface TextareaProps {
 }
 
 export function TextEditor({ textInput, onChangeTextInput }: TextareaProps) {
-  const ref = useRef<HTMLTextAreaElement>(null);
-
   const editableDiv = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (editableDiv.current) {
-      editableDiv.current.focus();
       editableDiv.current.innerText = textInput.text;
-
       if (textInput.text) {
         const range = document.createRange();
         range.selectNode(editableDiv.current);
         window.getSelection()?.removeAllRanges();
         window.getSelection()?.addRange(range);
       }
+
+      setTimeout(function () {
+        if (textInput.text) return;
+        editableDiv.current!.focus();
+      }, 0);
     }
-  }, [ref]);
+  }, [editableDiv]);
+
+  const handleOnInput = ({
+    currentTarget,
+  }: React.FormEvent<HTMLDivElement>) => {
+    onChangeTextInput({
+      ...textInput,
+      text: currentTarget.innerText,
+      ySize: currentTarget.scrollHeight,
+      xSize: currentTarget.scrollWidth,
+    });
+  };
 
   return (
     <div
@@ -39,14 +51,7 @@ export function TextEditor({ textInput, onChangeTextInput }: TextareaProps) {
         fontSize: textInput.fontSize + "px",
         fontFamily: textInput.fontFamily,
       }}
-      onInput={({ currentTarget }) => {
-        onChangeTextInput({
-          ...textInput,
-          text: currentTarget.innerText,
-          ySize: currentTarget.scrollHeight,
-          xSize: currentTarget.scrollWidth,
-        });
-      }}
-    ></div>
+      onInput={handleOnInput}
+    />
   );
 }

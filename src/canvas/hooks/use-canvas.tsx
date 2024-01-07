@@ -91,6 +91,8 @@ export const useCanvas = (): UseCanvas => {
           createLineElement(mousePosition, { endArrow: action === "arrow" }),
         ]);
         break;
+      case "text":
+        break;
       default:
         throw new Error(`Action ${action} not implemented`);
     }
@@ -144,6 +146,13 @@ export const useCanvas = (): UseCanvas => {
     }
 
     const mousePosition = { x: clientX, y: clientY };
+    if (action === "text") {
+      const newText = createTextElement(mousePosition);
+      setState([...unSelectAll(state), newText]);
+      setSelectedTextID(newText.id);
+      return;
+    }
+
     if (action !== "select") {
       return drawElement(mousePosition);
     }
@@ -177,6 +186,7 @@ export const useCanvas = (): UseCanvas => {
   };
 
   const endDrawing = () => {
+    if (selectedTextID !== undefined) return;
     let newState = [...state];
     const lastElement = newState.slice(-1)[0];
     if (isDrawing) {
@@ -197,7 +207,10 @@ export const useCanvas = (): UseCanvas => {
     setState(newState);
   };
 
-  const selectAction = (action: MenuAction) => setAction(action);
+  const selectAction = (action: MenuAction) => {
+    setAction(action);
+  };
+
   const deleteAll = () => setState([]);
 
   const onDoubleClick = ({ clientX: x, clientY: y }: React.MouseEvent) => {
